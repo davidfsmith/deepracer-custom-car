@@ -177,11 +177,6 @@ namespace TFLiteInferenceEngine {
         // Set the image processing algorithms
         imgProcess_ = imgProcess;
 
-        // Clean up vectors
-        inputNamesArr_.clear();
-        outputDimsArr_.clear();
-        output_tensors_.clear();
-
         // Load the model
         try {
 
@@ -209,7 +204,7 @@ namespace TFLiteInferenceEngine {
                        {"channels", input_tensor->dims->data[0]}};
                 paramsArr_.push_back(params_);
 
-                RCLCPP_INFO(inferenceNode->get_logger(), "Input name: %s", interpreter_->GetInputName(i));
+                RCLCPP_INFO(inferenceNode->get_logger(), "Input name: %s", input_tensor->name);
                 RCLCPP_INFO(inferenceNode->get_logger(), "Input dimensions: %i x %i x %i", input_tensor->dims->data[2], input_tensor->dims->data[1], input_tensor->dims->data[0]);
             }
 
@@ -223,7 +218,7 @@ namespace TFLiteInferenceEngine {
                     output_tensor->dims->data, output_tensor->dims->data + output_tensor->dims->size,
                     std::back_inserter(dims));
 
-                RCLCPP_INFO(inferenceNode->get_logger(), "Output name: %s", interpreter_->GetOutputName(o));
+                RCLCPP_INFO(inferenceNode->get_logger(), "Output name: %s", output_tensor->name);
 
                 outputDimsArr_.push_back(dims);
             }
