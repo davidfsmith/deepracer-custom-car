@@ -61,7 +61,7 @@
 - git:
     uri: https://github.com/RobotWebTools/web_video_server.git
     local-name: web_video_server
-    version: ros2
+    version: fc7338449da5789a59337d57d7ca374bbd7a0ad9
 - git:
     uri: https://github.com/Slamtec/rplidar_ros.git
     local-name: rplidar_ros
