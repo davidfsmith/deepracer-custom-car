@@ -47,9 +47,6 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && usermod -a -G i2c $USERNAME \
     && usermod -a -G dialout $USERNAME
 
-# Prepare ROS
-RUN rosdep init
-
 # Persist history
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
     && mkdir /commandhistory \

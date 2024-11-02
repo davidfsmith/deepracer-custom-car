@@ -115,7 +115,9 @@ if [ "$CACHE" != "true" ]; then
     #
     #######
 
-    if [ $ROS_DISTRO == "humble" ]; then
+    if [ "$ROS_DISTRO" == "humble" ]; then
+
+        echo "Applying patches for ROS 2 Humble"
 
         #######
         #

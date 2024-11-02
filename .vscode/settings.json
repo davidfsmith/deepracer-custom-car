@@ -86,7 +86,6 @@
     "search.exclude": {
       "**/build": true
     },
-    "C_Cpp.default.compilerPath": "/usr/bin/g++-9",
     "autopep8.args": [
         "--max-line-length=120"
     ],

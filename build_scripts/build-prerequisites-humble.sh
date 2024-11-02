@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script sets up the build prerequisites for the DeepRacer project on a Raspberry Pi running Ubuntu.
+# This script sets up the build prerequisites for the DeepRacer project on an 'empty' Ubuntu 22.04 (either arm64 or amd64).
 # It performs the following steps:
 # 1. Sets up the environment and directories.
 # 2. Configures locale settings.
@@ -10,13 +10,12 @@
 # 6. Sets up a Python virtual environment and installs necessary Python packages.
 # 7. Installs TensorFlow and other Python dependencies.
 # 8. Compiles and installs OpenVINO.
-# 9. Installs DeepRacer scripts.
-# 10. Builds DeepRacer packages.
+
 set -e
 
 export DEBIAN_FRONTEND=noninteractive
 
-export DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+export DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. >/dev/null 2>&1 && pwd)"
 
 mkdir -p $DIR/deps $DIR/dist
 
@@ -40,14 +39,12 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-a
 sudo apt -y update && sudo apt install -y python3-venv ros-humble-ros-base libopencv-dev python3-argcomplete ros-dev-tools python3-pip libopencv-dev libjsoncpp-dev libhdf5-dev \
     python3-opencv python3-websocket python3-colcon-common-extensions python3-rosinstall cython3 libuvc0 libboost-all-dev ros-humble-cv-bridge ros-humble-image-transport ros-humble-compressed-image-transport ros-humble-pybind11-vendor ffmpeg ros-humble-test-msgs
 
-# Install venv
-python3 -m venv --prompt dr-build .venv
-source $DIR/.venv/bin/activate
-pip3 install -U "setuptools==58.2.0" pip gdown catkin_pkg "Cython<3"
+sudo pip3 install -U "setuptools==58.2.0" pip catkin_pkg "Cython<3"
+
+# Builds and installs OpenVINO
+$DIR/build_scripts/build-openvino.sh
 
 # Tensorflow and dependencies
-cd $DIR/dist/
-# gdown --fuzzy https://drive.google.com/file/d/1rfgF2U2oZJvQSMbGNZl8f5jbWP4fY6UW/view?usp=sharing
 pip3 install -U pyudev \
     "flask<3" \
     flask_cors \
@@ -61,7 +58,6 @@ pip3 install -U pyudev \
     "numpy" \
     "protobuf" \
     "tensorboard" \
-    "openvino" \
-    "openvino-dev" \
-    "empy==3.3.4" \ 
-"lark"
+    $(find /opt/intel/openvino_2022.3.1/tools/ -name *.whl) \
+    "empy==3.3.4" \
+    "lark"
