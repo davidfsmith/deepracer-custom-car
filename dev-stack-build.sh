@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 set -e
-# Set the environment
-source /opt/ros/foxy/setup.bash 
-source /opt/intel/openvino_2021/bin/setupvars.sh
-
-# Change to build directory
-cd ws
 
 # Parse command line arguments
 CACHE="false"
@@ -21,8 +15,25 @@ while getopts "c" opt; do
     esac
 done
 
+# Set the environment
+source /opt/ros/foxy/setup.bash 
+source /opt/intel/openvino_2021/bin/setupvars.sh
+
+# Change to build directory
+cd ws
+
 if [ "$CACHE" != "true" ]; then
-    
+
+    # Undo checkouts / patches
+    for pkg_dir in */; 
+    do
+        cd $pkg_dir
+        if [ -d .git ]; then
+            git reset --hard
+        fi
+        cd ..
+    done
+
     rosws update
 
     #######
@@ -63,7 +74,7 @@ if [ "$CACHE" != "true" ]; then
 
     # Patch with aws-deepracer-ctrl-pkg.patch
     cd aws-deepracer-ctrl-pkg
-    git apply ../files/aws-deepracer-ctrl-pkg.patch
+    git apply ../../files/aws-deepracer-ctrl-pkg.patch
     cd ..
 
     # Remove previous builds (gives clean build)
