@@ -81,4 +81,25 @@ do
               FILE=$(compgen -G aws-deepracer-core*.deb)
               mv $FILE $(echo $DIR/dist/$FILE | sed -e 's/\+/\-/')
        fi
+
+       if [ "$pkg" == "aws-deepracer-device-console" ];
+       then
+              echo -e "\n### Building aws-deepracer-device-console $VERSION ###\n"
+              dpkg-deb -R src/aws-deepracer-device-console_*amd64.deb aws-deepracer-device-console
+              cd aws-deepracer-device-console
+              sed -i "s/Version: .*/Version: $VERSION/" DEBIAN/control
+              sed -i 's/pyclean -p aws-deepracer-device-console/ /' DEBIAN/prerm
+              sed -i 's/.range-btn-minus button,.range-btn-plus button{background-color:#aab7b8!important;border-radius:4px!important;border:1px solid #879596!important}/.range-btn-minus button,.range-btn-plus button{background-color:#aab7b8!important;border-radius:4px!important;border:1px solid #879596!important;touch-action: manipulation;user-select: none;}/' opt/aws/deepracer/lib/device_console/static/bundle.css
+              sed -i 's/isVideoPlaying: true/isVideoPlaying: false/' opt/aws/deepracer/lib/device_console/static/bundle.js
+              sed -i 's/BATTERY_AND_NETWORK_DETAIL_API_CALL_FREQUENCY = 1000;/BATTERY_AND_NETWORK_DETAIL_API_CALL_FREQUENCY = 10000;/' opt/aws/deepracer/lib/device_console/static/bundle.js
+              cp $DIR/files/login.html opt/aws/deepracer/lib/device_console/templates/
+
+              echo "/opt/aws/deepracer/nginx/nginx_install_certs.sh" | tee -a DEBIAN/postinst >/dev/null
+              echo "systemctl restart nginx.service" | tee -a DEBIAN/postinst >/dev/null
+              cd ..
+              dpkg-deb --root-owner-group -b aws-deepracer-device-console
+              dpkg-name -o aws-deepracer-device-console.deb 
+              FILE=$(compgen -G aws-deepracer-device-console*.deb)
+              mv $FILE $(echo $DIR/dist/$FILE | sed -e 's/\+/\-/')
+       fi
 done
