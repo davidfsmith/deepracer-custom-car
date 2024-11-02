@@ -1,4 +1,34 @@
 #!/usr/bin/env bash
+
+# This script builds and packages AWS DeepRacer components for ARM64 architecture.
+# It supports the following packages:
+# - aws-deepracer-util
+# - aws-deepracer-device-console
+# - aws-deepracer-core
+# - aws-deepracer-sample-models
+
+# Usage:
+# ./build-deepracer-packages.sh [-p "package1 package2 ..."]
+
+# Options:
+# -p: Specify the packages to build. If not provided, the default packages will be built.
+
+# The script performs the following steps:
+# 1. Sets up the environment and directories.
+# 2. Copies necessary DeepRacer repository files.
+# 3. Clones the mxcam repository if not already present.
+# 4. Checks for missing packages and downloads them if necessary.
+# 5. Builds the specified packages for ARM64 architecture.
+
+# Each package build involves:
+# - Extracting the original AMD64 package.
+# - Modifying the package contents and control files for ARM64.
+# - Repacking the modified package.
+# - Moving the final package to the distribution directory.
+
+# Note:
+# - Ensure that the required files and directories (e.g., versions.json, files directory) are present.
+# - The script requires sudo privileges for certain operations.
 set -e
 
 export DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
@@ -98,6 +128,7 @@ do
               sed -i 's/.range-btn-minus button,.range-btn-plus button{background-color:#aab7b8!important;border-radius:4px!important;border:1px solid #879596!important}/.range-btn-minus button,.range-btn-plus button{background-color:#aab7b8!important;border-radius:4px!important;border:1px solid #879596!important;touch-action: manipulation;user-select: none;}/' opt/aws/deepracer/lib/device_console/static/bundle.css
               sed -i 's/isVideoPlaying: true/isVideoPlaying: false/' opt/aws/deepracer/lib/device_console/static/bundle.js
               sed -i 's/BATTERY_AND_NETWORK_DETAIL_API_CALL_FREQUENCY = 1000;/BATTERY_AND_NETWORK_DETAIL_API_CALL_FREQUENCY = 10000;/' opt/aws/deepracer/lib/device_console/static/bundle.js
+              cp $DIR/files/login.html opt/aws/deepracer/lib/device_console/templates/
               echo "/opt/aws/deepracer/nginx/nginx_install_certs.sh" | tee -a DEBIAN/postinst >/dev/null
               echo "systemctl restart nginx.service" | tee -a DEBIAN/postinst >/dev/null
               cd ..
