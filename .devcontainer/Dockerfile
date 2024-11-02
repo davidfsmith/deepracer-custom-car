@@ -20,7 +20,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     ffmpeg \
     sudo \
     curl \
-    wget
+    wget \
+    jq
 
 ARG build_id=2021.1.110
 # Install full package

@@ -17,15 +17,20 @@
 #################################################################################
 
 source /opt/aws/deepracer/lib/setup.bash
-source /opt/intel/openvino_2021/bin/setupvars.sh
+source /opt/intel/openvino_2022/setupvars.sh
 
 MYRIAD=$(lsusb | grep "Intel Movidius MyriadX")
 if [ -n "${MYRIAD}" ]; then
     INFERENCE_ENGINE='inference_engine:=OV'
     INFERENCE_DEVICE='inference_device:=MYRIAD'
 else
-    INFERENCE_ENGINE='inference_engine:=OV'
-    INFERENCE_DEVICE='inference_device:=CPU'    
+    INFERENCE_ENGINE='inference_engine:=TFLITE'
 fi
 
-ros2 launch deepracer_launcher deepracer_launcher.py ${INFERENCE_ENGINE} ${INFERENCE_DEVICE}
+if [ -f /sys/firmware/devicetree/base/model ] && grep -q "Raspberry Pi" /sys/firmware/devicetree/base/model; then
+    BATTERY_DUMMY='battery_dummy:=True'
+else
+    BATTERY_DUMMY=''
+fi
+
+ros2 launch deepracer_launcher deepracer_launcher.py ${INFERENCE_ENGINE} ${INFERENCE_DEVICE} ${BATTERY_DUMMY}

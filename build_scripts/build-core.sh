@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-export DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+export DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. >/dev/null 2>&1 && pwd)"
 
 # Parse command line arguments
 CACHE="false"
@@ -105,7 +105,7 @@ if [ "$CACHE" != "true" ]; then
 
     # Patch with aws-deepracer-ctrl-pkg.patch
     cd aws-deepracer-ctrl-pkg
-    git apply $DIR/patches/aws-deepracer-ctrl-pkg.patch
+    git apply $DIR/build_scripts/patches/aws-deepracer-ctrl-pkg.patch
     cd ..
 
     # Resolve the dependencies
@@ -124,47 +124,47 @@ if [ "$CACHE" != "true" ]; then
         #
 
         cd aws-deepracer-i2c-pkg/
-        git apply $DIR/patches/aws-deepracer-i2c-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-i2c-pkg.rpi.patch
         cd ..
 
         cd aws-deepracer-servo-pkg/
-        git apply $DIR/patches/aws-deepracer-servo-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-servo-pkg.rpi.patch
         cd ..
 
         cd aws-deepracer-systems-pkg/
-        git apply $DIR/patches/aws-deepracer-systems-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-systems-pkg.rpi.patch
         cd ..
 
         cd aws-deepracer-status-led-pkg/
-        git apply $DIR/patches/aws-deepracer-status-led-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-status-led-pkg.rpi.patch
         cd ..
 
         cd aws-deepracer-webserver-pkg/
-        git apply $DIR/patches/aws-deepracer-webserver-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-webserver-pkg.rpi.patch
         cd ..
 
         cd aws-deepracer-inference-pkg/
-        git apply $DIR/patches/aws-deepracer-inference-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-inference-pkg.rpi.patch
         cd ..
 
         cd aws-deepracer-model-optimizer-pkg/
-        git apply $DIR/patches/aws-deepracer-model-optimizer-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-model-optimizer-pkg.rpi.patch
         cd ..
 
         cd aws-deepracer-sensor-fusion-pkg/
-        git apply $DIR/patches/aws-deepracer-sensor-fusion-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-sensor-fusion-pkg.rpi.patch
         cd ..
 
         cd aws-deepracer-usb-monitor-pkg/
-        git apply $DIR/patches/aws-deepracer-usb-monitor-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-usb-monitor-pkg.rpi.patch
         cd ..
 
         cd aws-deepracer-navigation-pkg/
-        git apply $DIR/patches/aws-deepracer-navigation-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-navigation-pkg.rpi.patch
         cd ..
 
         cd aws-deepracer-device-info-pkg/
-        git apply $DIR/patches/aws-deepracer-device-info-pkg.rpi.patch
+        git apply $DIR/build_scripts/patches/aws-deepracer-device-info-pkg.rpi.patch
         cd ..
 
         #
@@ -174,7 +174,7 @@ if [ "$CACHE" != "true" ]; then
     fi
 
     # Update deepracer_launcher.py (fix an issue in the file)
-    cp $DIR/files/common/deepracer_launcher.py ./aws-deepracer-launcher/deepracer_launcher/launch/deepracer_launcher.py
+    cp $DIR/build_scripts/files/common/deepracer_launcher.py ./aws-deepracer-launcher/deepracer_launcher/launch/deepracer_launcher.py
 
     # Turn off SW update
     sed -i "s/ENABLE_PERIODIC_SOFTWARE_UPDATE = True/ENABLE_PERIODIC_SOFTWARE_UPDATE = False/" aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/software_update_module/software_update_config.py
