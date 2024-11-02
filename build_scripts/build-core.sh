@@ -50,7 +50,7 @@ if [ "$CACHE" != "true" ]; then
     rm -rf ../install ../build ../log
 
     # Undo checkouts / patches
-    for pkg_dir in */; do
+    for pkg_dir in $(find . -mindepth 1 -maxdepth 1 -type d); do
         cd $pkg_dir
         if [ -d .git ]; then
             git reset --hard
