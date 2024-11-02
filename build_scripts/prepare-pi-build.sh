@@ -66,11 +66,3 @@ pip3 install -U pyudev \
     "empy==3.3.4" \ 
     "lark"
 
-# Compile and Install OpenVINO
-./build-openvino.sh
-
-# Install deepracer-scripts
-./build-deepracer-core.sh
-
-# Build packages
-./build-deepracer-packages.sh

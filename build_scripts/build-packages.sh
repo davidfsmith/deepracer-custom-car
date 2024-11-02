@@ -53,23 +53,23 @@ if [ -z "$PACKAGES" ]; then
 fi
 
 # DeepRacer Repos
-sudo cp $DIR/files/deepracer.asc /etc/apt/trusted.gpg.d/
-sudo cp $DIR/files/aws_deepracer.list /etc/apt/sources.list.d/
+sudo cp $DIR/../install_scripts/files/common/deepracer.asc /etc/apt/trusted.gpg.d/
+sudo cp $DIR/../install_scripts/files/common/aws_deepracer.list /etc/apt/sources.list.d/
 
 # Get mxcam
-if [ ! -d "$DIR/deps/geocam-bin-armhf" ]; then
-       mkdir -p $DIR/deps/
-       cd $DIR/deps/
+if [ ! -d "$DIR/../deps/geocam-bin-armhf" ]; then
+       mkdir -p $DIR/../deps/
+       cd $DIR/../deps/
        git clone https://github.com/doitaljosh/geocam-bin-armhf
 fi
 
-rm -rf $DIR/pkg-build/aws* 
-mkdir -p $DIR/pkg-build $DIR/pkg-build/src $DIR/dist
-cd $DIR/pkg-build
+rm -rf $DIR/../pkg-build/aws* 
+mkdir -p $DIR/../pkg-build $DIR/../pkg-build/src $DIR/../dist
+cd $DIR/../pkg-build
 mkdir -p $PACKAGES
 
 # Check which packages we have
-cd $DIR/pkg-build/src
+cd $DIR/../pkg-build/src
 for pkg in $PACKAGES;
 do
        if [ "$(compgen -G $pkg*.deb | wc -l )" -eq 0 ];
@@ -88,8 +88,15 @@ then
        apt download $PACKAGES_DOWNLOAD
 fi
 
+# Determine target architecture
+TARGET_ARCH=$(dpkg --print-architecture)
+if [ "$TARGET_ARCH" != "arm64" ] && [ "$TARGET_ARCH" != "amd64" ]; then
+       echo "Unsupported architecture: $TARGET_ARCH. Exiting."
+       exit 1
+fi
+
 # Build required packages
-cd $DIR/pkg-build
+cd $DIR/../pkg-build
 for pkg in $PACKAGES; 
 do
        if [ "$pkg" == "aws-deepracer-util" ];
@@ -101,12 +108,12 @@ do
               rm -rf opt/aws/deepracer/camera/installed/bin/mxuvc \
                      opt/aws/deepracer/camera/installed/bin/querydump \
                      opt/aws/deepracer/camera/installed/lib
-              cp $DIR/deps/geocam-bin-armhf/files/usr/bin/mxcam opt/aws/deepracer/camera/installed/bin
+              cp $DIR/../deps/geocam-bin-armhf/files/usr/bin/mxcam opt/aws/deepracer/camera/installed/bin
               cp $DIR/files/aws_deepracer-community.list etc/apt/sources.list.d/aws_deepracer.list
               cp $DIR/files/otg_eth.sh opt/aws/deepracer/util/otg_eth.sh
               cp $DIR/files/isc-dhcp-server opt/aws/deepracer/util/isc-dhcp-server
               cp $DIR/files/deepracer_dhcp.conf opt/aws/deepracer/util/deepracer_dhcp.conf
-              sed -i 's/Architecture: amd64/Architecture: arm64/' DEBIAN/control
+              sed -i "s/Architecture: amd64/Architecture: $TARGET_ARCH/" DEBIAN/control
               sed -i "s/Version: .*/Version: $VERSION/" DEBIAN/control
               sed -i 's/pyclean -p aws-deepracer-util/ /' DEBIAN/prerm
               cd ..
@@ -122,7 +129,7 @@ do
               echo -e "\n### Building aws-deepracer-device-console $VERSION ###\n"
               dpkg-deb -R src/aws-deepracer-device-console_*amd64.deb aws-deepracer-device-console
               cd aws-deepracer-device-console
-              sed -i 's/Architecture: amd64/Architecture: arm64/' DEBIAN/control
+              sed -i 's/Architecture: amd64/Architecture: all/' DEBIAN/control
               sed -i "s/Version: .*/Version: $VERSION/" DEBIAN/control
               sed -i 's/pyclean -p aws-deepracer-device-console/ /' DEBIAN/prerm
               sed -i 's/.range-btn-minus button,.range-btn-plus button{background-color:#aab7b8!important;border-radius:4px!important;border:1px solid #879596!important}/.range-btn-minus button,.range-btn-plus button{background-color:#aab7b8!important;border-radius:4px!important;border:1px solid #879596!important;touch-action: manipulation;user-select: none;}/' opt/aws/deepracer/lib/device_console/static/bundle.css
@@ -144,7 +151,7 @@ do
               echo -e "\n### Building aws-deepracer-core $VERSION ###\n"
               dpkg-deb -R src/aws-deepracer-core_*amd64.deb aws-deepracer-core
               cd aws-deepracer-core
-              sed -i 's/Architecture: amd64/Architecture: arm64/' DEBIAN/control
+              sed -i "s/Architecture: amd64/Architecture: $TARGET_ARCH/" DEBIAN/control
               sed -i "s/Version: .*/Version: $VERSION/" DEBIAN/control
               sed -i 's/python-apt/python3-apt/' DEBIAN/control
               sed -i '/Depends/ s/$/, gnupg/' DEBIAN/control
@@ -152,7 +159,7 @@ do
               sed -i 's/ExecStop=\/opt\/aws\/deepracer\/util\/otg_eth.sh stop/KillSignal=2/' etc/systemd/system/deepracer-core.service
               rm -rf opt/aws/deepracer/lib/*
               cp $DIR/files/start_ros.sh opt/aws/deepracer
-              cp -r $DIR/bundle_ws/install/* opt/aws/deepracer/lib/
+              cp -r $DIR/../install/* opt/aws/deepracer/lib/
               rm DEBIAN/preinst
               cd ..
               dpkg-deb --root-owner-group -b aws-deepracer-core
