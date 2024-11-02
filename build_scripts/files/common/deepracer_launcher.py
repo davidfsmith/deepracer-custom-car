@@ -87,9 +87,9 @@ def launch_setup(context, *args, **kwargs):
         name='device_info_node'
     )
 
-    battery_node_exec='battery_node'
+    battery_node_exec = 'battery_node'
     if str2bool(LaunchConfiguration('battery_dummy').perform(context)):
-        battery_node_exec='battery_dummy_node'
+        battery_node_exec = 'battery_dummy_node'
 
     battery_node = Node(
         package='i2c_pkg',
@@ -97,7 +97,7 @@ def launch_setup(context, *args, **kwargs):
         executable=battery_node_exec,
         name='battery_node'
     )
-    
+
     inference_node = Node(
         package='inference_pkg',
         namespace='inference_pkg',
