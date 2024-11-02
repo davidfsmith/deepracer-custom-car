@@ -11,7 +11,8 @@ __pycache__
 pkg-build/
 dist/
 devel/
-logs/
+log/
+install/
 build/
 bin/
 lib/
@@ -67,8 +68,9 @@ deps/
 dist/
 .venv/
 pkg-build/
-bundle_ws/*
-!bundle_ws/.rosinstall
+src/*
+!src/.rosinstall-core
+!src/.rosinstall-foxy
 
 # Test module
 test/install/

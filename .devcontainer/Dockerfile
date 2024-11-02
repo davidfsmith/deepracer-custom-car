@@ -9,6 +9,9 @@ ARG USER_GID=$USER_UID
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     libboost-all-dev \
     python3-pip \
+    python3-websocket \
+    python3-colcon-common-extensions \
+    python3-rosinstall \
     ros-foxy-cv-bridge \
     ros-foxy-rqt-console \
     ros-foxy-rqt-graph \
@@ -42,6 +45,9 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && groupadd --gid 136 i2c \
     && usermod -a -G i2c $USERNAME \
     && usermod -a -G dialout $USERNAME
+
+# Prepare ROS
+RUN rosdep init
 
 # Persist history
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
