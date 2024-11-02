@@ -22,7 +22,7 @@ set -e
 export DEBIAN_FRONTEND=noninteractive
 
 # Check we have the privileges we need
-if [ `whoami` != root ]; then
+if [ $(whoami) != root ]; then
     echo "Please run this script as root or using sudo"
     exit 1
 fi
@@ -49,7 +49,7 @@ echo "dtoverlay=i2c-pwm-pca9685a,addr=0x40" | tee -a /boot/firmware/config.txt
 
 # Switch nameserver
 ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
-echo "DNSStubListener=no" |  tee -a /etc/systemd/resolved.conf >/dev/null
+echo "DNSStubListener=no" | tee -a /etc/systemd/resolved.conf >/dev/null
 systemctl restart systemd-resolved
 
 # Firewall enable

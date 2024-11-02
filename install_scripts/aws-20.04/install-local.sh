@@ -4,8 +4,7 @@
 sudo systemctl stop deepracer-core
 
 # Clean up older install
-if [[ -d /opt/aws/deepracer/lib.custom ]]
-then
+if [[ -d /opt/aws/deepracer/lib.custom ]]; then
     echo "Custom install exists. Deleting."
     sudo rm -rf /opt/aws/deepracer/lib.custom
 fi

@@ -6,13 +6,13 @@ export DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. >/dev/null 2>&1 && pwd)"
 CACHE="false"
 while getopts "c" opt; do
     case ${opt} in
-        c )
-            CACHE="true"
-            ;;
-        \? )
-            echo "Usage: cmd [-c]"
-            exit 1
-            ;;
+    c)
+        CACHE="true"
+        ;;
+    \?)
+        echo "Usage: cmd [-c]"
+        exit 1
+        ;;
     esac
 done
 
@@ -50,8 +50,7 @@ if [ "$CACHE" != "true" ]; then
     rm -rf ../install ../build ../log
 
     # Undo checkouts / patches
-    for pkg_dir in */; 
-    do
+    for pkg_dir in */; do
         cd $pkg_dir
         if [ -d .git ]; then
             git reset --hard
@@ -62,15 +61,15 @@ if [ "$CACHE" != "true" ]; then
     cp .rosinstall-core .rosinstall
 
     if [ $ROS_DISTRO == "foxy" ]; then
-        rosws merge --merge-replace - < .rosinstall-foxy
+        rosws merge --merge-replace - <.rosinstall-foxy
     fi
 
-    rosws update 
+    rosws update
 
     #######
     #
     # START - Pull request specific changes
-    # 
+    #
 
     # Update packages for PR's
     # https://github.com/aws-deepracer/aws-deepracer-inference-pkg/pull/4
@@ -188,8 +187,7 @@ export PYTHONWARNINGS=ignore:::setuptools.command.install
 colcon build --packages-up-to deepracer_launcher rplidar_ros
 
 # Build the add-ons
-colcon build --packages-up-to logging_pkg 
-
+colcon build --packages-up-to logging_pkg
 
 set +e
 echo "Done!"
