@@ -37,7 +37,19 @@ In the `utils/` folder there are utilities to create a USB flash stick for the o
 
 ## Installation
 
-[Provide instructions on how to install and set up your project]
+There are separate installation scripts for the original DeepRacer on Ubuntu 20.04/ROS2 Foxy, and the Raspberry Pi4 based car on Ubuntu 22.04/ROS2 Humble. Basic installation depends on pre-packages apt/deb packages, and does not require any packages to be compiled on the car itself.
+
+For the original DeepRacer run:
+
+        sudo install_scripts/aws-20.04/install-prerequisites.sh
+        sudo install_scripts/aws-20.04/install-deepracer.sh
+
+For the Raspberry Pi4:
+
+        sudo install_scripts/rpi4-22.04/install-prerequisites.sh
+        sudo install_scripts/rpi4-22.04/install-deepracer.sh
+
+See also [building instructions](docs/raspberry_pi.md) for the Raspberry Pi4.
 
 ## Usage
 
