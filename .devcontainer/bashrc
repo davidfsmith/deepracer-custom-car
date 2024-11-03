@@ -4,6 +4,9 @@ if [[ -f "$HOME/.bashrc" ]]; then
     source $HOME/.bashrc
 fi
 
+# Detect Architecture
+echo "System Architecture: $(dpkg --print-architecture)"
+
 # Detect ROS version
 if [ -f /opt/ros/foxy/setup.bash ]; then
     ROS_DISTRO="foxy"
