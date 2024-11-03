@@ -33,6 +33,8 @@ Additionally there are OS level tweaks for the original DeepRacer:
  - Uninstall unused packages and stop unnecessary services
  - Disable wifi power-save to avoid disconnects
 
+In the `utils/` folder there are utilities to create a USB flash stick for the original DeepRacer. See [documentation](docs/utilities.md).
+
 ## Installation
 
 [Provide instructions on how to install and set up your project]
