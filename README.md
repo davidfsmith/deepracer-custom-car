@@ -91,7 +91,7 @@ Running the ARM64 container on a normal x86 computer will require enabling cross
 
         docker run --privileged --rm tonistiigi/binfmt --install all
 
-The cross-compiled container uses quemu and is quite a bit slower than the native containers.
+The cross-compiled container uses qemu and is quite a bit slower than the native containers.
 
 Once DevContainer is runnning (first build might take a while) then packages can be installed with:
 
