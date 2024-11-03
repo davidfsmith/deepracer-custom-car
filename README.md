@@ -75,6 +75,27 @@ Example custom `/opt/aws/deepracer/start_ros.sh`:
     source /opt/intel/openvino_2021/bin/setupvars.sh
     ros2 launch deepracer_launcher deepracer_launcher.py camera_resize:=False camera_fps:=15 logging_mode:=Always
 
+### Inference engine 
+
+The different combinations of `inference_engine` and `inference_device` is not all compatible with the RPi4, and each option comes with pros and cons. The original car software only supports OpenVINO CPU.
+
+| Type | Original | RPi4 | Comment |
+|------|----------|------|---------|
+| Tensorflow Lite CPU | Yes | Yes  | Default for RPi4
+| OpenVINO CPU | Yes | No | Default for Original
+| OpenVINO GPU | Yes | No | Reduced CPU load, model takes longer to load
+| OpenVINO NCS2 / Myriad X | Yes | Yes | Reduced CPU load, model takes longer to load, requires NCS2 stick
+
+The different modes have been tested for equivalency, and it is verified that they provide the same results (identical picture in -> identical action taken). Less than 1 per 1000 frames are differing, mainly due to the model not having a clear action, and several actions are having very similar probabilities.
+
+### Logging
+
+If you insert a USB stick or SD card with a folder called `logs/` then this will be automatically mounted, and when you start the car in autonomous mode then a ROS Bag file is created storing the inference results, which also contains the ROS messages.
+
+Images are only captured if the autonomous mode is running ("Start Vehicle"). If stopped no images are stored. If the same model is restarted within 15 seconds the new images are appended to the same bag. After 15 seconds the bag is closed, and if restarted a new bag is created. If the selected model changes, the current bag is immediately closed, and a new one created once the car is started.
+
+[larsll-deepracer-logging](https://github.com/larsll/larsll-deepracer-logging.git) is providing a script to convert the bag into a video, combining it with a grad-cam analysis to visualize what happens inside of the car.
+
 ## Building a car with Raspberry Pi
 
 To create a DeepRacer compatible car with WLToys A979 and a Raspberry Pi read the [building instructions](docs/raspberry_pi.md).
