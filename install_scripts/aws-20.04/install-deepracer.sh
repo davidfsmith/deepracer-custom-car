@@ -17,6 +17,7 @@ systemctl stop deepracer-core
 cp $DIR/install_scripts/common/deepracer-larsll.asc /etc/apt/trusted.gpg.d/
 cp $DIR/install_scripts/aws-20.04/aws_deepracer-community.list /etc/apt/sources.list.d/
 apt update
+apt upgrade -y
 
 # Install GPU driver
 /opt/intel/openvino_2021/install_dependencies/install_NEO_OCL_driver.sh -y
