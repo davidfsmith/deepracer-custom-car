@@ -29,6 +29,12 @@ fi
 
 export DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. >/dev/null 2>&1 && pwd)"
 
+# Grant deepracer user sudoers rights
+if [ -n "${SUDO_USER}" ]; then
+    echo ${SUDO_USER} ALL=\(root\) NOPASSWD:ALL >/etc/sudoers.d/${SUDO_USER}
+    chmod 0440 /etc/sudoers.d/${SUDO_USER}
+fi
+
 mkdir -p $DIR/dist
 
 systemctl stop unattended-upgrades
