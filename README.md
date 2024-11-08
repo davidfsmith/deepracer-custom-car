@@ -1,8 +1,8 @@
-# DeepRacer Custom
+# DeepRacer Custom Car
 
 ## Description
 
-DeepRacer Custom provides a set of features that will improve your DeepRacer car.
+DeepRacer Custom Car provides a set of features that will improve your DeepRacer car.
 
 The repository is a merge of [deepracer-scripts](https://github.com/davidfsmith/deepracer-scripts) that contained improvements for the original car and [deepracer-pi](https://github.com/larsll/deepracer-pi) that ported DeepRacer to a Raspberry Pi4.
 
