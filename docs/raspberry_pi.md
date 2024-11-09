@@ -15,8 +15,10 @@ Main features of the port:
 The following parts are needed:
 
 * WLToys A979 (or compatible) or original DeepRacer
-* 3D-print of the parts in `/drawing`.
-* Chassis holder **TODO**
+* ESC for Brushed Motor, e.g. WP-1060-RTR - original DeepRacer already includes this item
+* 4-pin Servo, e.g. Surpass Hobby S0017M - original DeepRacer already includes this item
+* 3D-print of the parts in `/drawing`
+* WLToys Body Posts (part# A969-05)
 * Raspberry Pi 4, recommended 2GB or more of RAM
     * Stand-off set (2.5mm)
 * [Waveshare Servo Driver Hat](https://www.waveshare.com/product/raspberry-pi/hats/motors-relays/servo-driver-hat.htm) or compatible PCA9865 servo boards. 
