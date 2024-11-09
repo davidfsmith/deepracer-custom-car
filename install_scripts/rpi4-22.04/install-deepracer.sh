@@ -42,7 +42,7 @@ pip3 install -U "setuptools<50" pip "cython<3" "wheel==0.42.0" testresources
 # Get OpenVINO
 mkdir -p $DIR/dist/
 cd $DIR/dist/
-[ ! -f "$DIR/dist/openvino_2022.3.1_arm64.tgz" ] && curl -O https://larsll-build-artifact-share.s3.eu-north-1.amazonaws.com/openvino/openvino_2022.3.1_arm64.tgz
+[ ! -f "$DIR/dist/openvino_2022.3.1_arm64.tgz" ] && curl -O https://aws-deepracer-community-sw.s3.eu-west-1.amazonaws.com/openvino/openvino_2022.3.1_arm64.tgz
 cd /
 tar xvzf $DIR/dist/openvino_2022.3.1_arm64.tgz
 ln -sf /opt/intel/openvino_2022.3.1 /opt/intel/openvino_2022
@@ -69,7 +69,7 @@ pip3 install -U pyudev \
 
 # Install packages
 cp $DIR/install_scripts/rpi4-22.04/aws_deepracer-community.list /etc/apt/sources.list.d/aws_deepracer.list
-cp $DIR/install_scripts/common/deepracer-larsll.asc /etc/apt/trusted.gpg.d/
+cp $DIR/install_scripts/common/deepracer-community.asc /etc/apt/trusted.gpg.d/
 apt update -y && apt install -y aws-deepracer-core aws-deepracer-device-console aws-deepracer-util aws-deepracer-sample-models
 
 # Disable deepracer-core until we are ready

@@ -44,7 +44,7 @@ cd src
 
 if [ "$CACHE" != "true" ]; then
 
-    rosdep update --rosdistro=$ROS_DISTRO
+    rosdep update --rosdistro=$ROS_DISTRO -q
 
     # Remove previous builds (gives clean build)
     rm -rf ../install ../build ../log
@@ -100,6 +100,12 @@ if [ "$CACHE" != "true" ]; then
     cd aws-deepracer-model-optimizer-pkg
     git fetch origin pull/3/head:tflite
     git checkout tflite
+    cd ..
+
+    # https://github.com/aws-deepracer/aws-deepracer-i2c-pkg/pull/3
+    cd aws-deepracer-i2c-pkg
+    git fetch origin pull/3/head:dummy
+    git checkout dummy
     cd ..
 
     # Patch with aws-deepracer-ctrl-pkg.patch
