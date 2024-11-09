@@ -14,7 +14,7 @@ Main features of the port:
 
 The following parts are needed:
 
-* WLToys A979 (or compatible) or original DeepRacer
+* WLToys A959, A969, A979, compatible car built from parts or original DeepRacer
 * ESC for Brushed Motor, e.g. WP-1060-RTR - original DeepRacer already includes this item
 * 4-pin Servo, e.g. Surpass Hobby S0017M - original DeepRacer already includes this item
 * 3D-print of the parts in `/drawing`
@@ -43,10 +43,10 @@ Installation of software is reasonably straight forward, as pre-built packages a
 
 - Flash an SD card with Ubuntu 22.04 Server for ARM64 using the Raspberry Pi Imager.
 - Boot the SD card, and let it upgrade (this takes some time...)
-- Run `git clone https://github.com/aws-deepracer-community/deepracer-custom`
-- Run `sudo ./install_scripts/pi/install-prerequisites.sh`
+- Run `git clone https://github.com/aws-deepracer-community/deepracer-custom-car`
+- Run `sudo ./install_scripts/rpi4-22.04/install-prerequisites.sh`
 - Reboot
-- Run `sudo ./install_scripts/pi/install-deepracer.sh`
+- Run `sudo ./install_scripts/rpi4-22.04/install-deepracer.sh`
 
 Once installed you can start the stack with `sudo /opt/aws/deepracer/start_ros.sh`. To ensure a smooth start a camera needs to be plugged in.
 The launch log will now display in the console.
