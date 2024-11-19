@@ -139,7 +139,7 @@ for pkg in $PACKAGES; do
         echo -e "\n### Building aws-deepracer-device-console $VERSION ###\n"
         dpkg-deb -R src/aws-deepracer-device-console_*amd64.deb aws-deepracer-device-console
         cd aws-deepracer-device-console
-        sed -i 's/Architecture: amd64/Architecture: all/' DEBIAN/control
+        sed -i "s/Architecture: amd64/Architecture: $TARGET_ARCH/" DEBIAN/control
         sed -i "s/Version: .*/Version: $VERSION/" DEBIAN/control
         sed -i 's/pyclean -p aws-deepracer-device-console/ /' DEBIAN/prerm
         sed -i 's/.range-btn-minus button,.range-btn-plus button{background-color:#aab7b8!important;border-radius:4px!important;border:1px solid #879596!important}/.range-btn-minus button,.range-btn-plus button{background-color:#aab7b8!important;border-radius:4px!important;border:1px solid #879596!important;touch-action: manipulation;user-select: none;}/' opt/aws/deepracer/lib/device_console/static/bundle.css
