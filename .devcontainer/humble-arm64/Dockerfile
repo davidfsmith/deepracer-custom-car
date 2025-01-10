@@ -1,6 +1,6 @@
 # Copyright (C) 2019-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-FROM arm64v8/ros:humble-ros-base-jammy
+FROM --platform=linux/arm64 arm64v8/ros:humble-ros-base-jammy
 
 ARG USERNAME=user-name-goes-here
 ARG USER_UID=1000
