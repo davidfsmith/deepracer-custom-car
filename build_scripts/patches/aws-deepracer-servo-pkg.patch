@@ -47,3 +47,16 @@ index 631af08..1a88136 100644
      rclcpp::Service<deepracer_interfaces_pkg::srv::GetLedCtrlSrv>::SharedPtr getLedCtrlService =
          node->create_service<deepracer_interfaces_pkg::srv::GetLedCtrlSrv>(GET_LED_STATE_SERVICE_NAME,
                                                                             std::bind(&PWM::LedMgr::getLedCtrlHdl,
+diff --git a/servo_pkg/src/servo_mgr.cpp b/servo_pkg/src/servo_mgr.cpp
+index e50be4c..64de37a 100644
+--- a/servo_pkg/src/servo_mgr.cpp
++++ b/servo_pkg/src/servo_mgr.cpp
+@@ -68,7 +68,7 @@ namespace PWM {
+     void ServoMgr::servoSubscriber(const deepracer_interfaces_pkg::msg::ServoCtrlMsg::SharedPtr servoMsg) {
+         auto setPWM = [&](auto &servo, auto value, auto type) {
+             if (value < -1.0 || value > 1.0) {
+-                RCLCPP_ERROR(logger_, "Invalid servo request: %d", value);
++                RCLCPP_ERROR(logger_, "Invalid servo request: %f", value);
+                 return;
+             }
+ 
