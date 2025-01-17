@@ -1,5 +1,5 @@
 diff --git a/sensor_fusion_pkg/src/sensor_fusion_node.cpp b/sensor_fusion_pkg/src/sensor_fusion_node.cpp
-index 028191a..8a48582 100644
+index 028191a..e73c830 100644
 --- a/sensor_fusion_pkg/src/sensor_fusion_node.cpp
 +++ b/sensor_fusion_pkg/src/sensor_fusion_node.cpp
 @@ -111,6 +111,11 @@ namespace SensorFusion {
@@ -70,7 +70,7 @@ index 028191a..8a48582 100644
 +
 +        /// Callback function for camera message subscription.
 +        /// @param msg Message with images from DeepRacer cameras.
-+        void cameraModernCB(const sensor_msgs::msg::CompressedImage::ConstSharedPtr & msg) {
++        void cameraModernCB(const sensor_msgs::msg::CompressedImage::SharedPtr msg) {
 +            try {
 +                auto camera_msg = std::make_shared<deepracer_interfaces_pkg::msg::CameraMsg>();
 +                camera_msg->images.push_back(*msg);
