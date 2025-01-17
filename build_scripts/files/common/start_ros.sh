@@ -51,4 +51,13 @@ else
     LOGGING_PROVIDER='logging_provider:=sqlite3'
 fi
 
-ros2 launch deepracer_launcher deepracer_launcher.py ${INFERENCE_ENGINE} ${INFERENCE_DEVICE} ${BATTERY_DUMMY} ${LOGGING_MODE} ${LOGGING_PROVIDER} ${CAMERA_MODE}
+CP210X=$(lsusb | grep "CP210x UART Bridge")
+if [ -n "${CP210X}" ]; then
+    echo "RPLIDAR / UART Bridge found!"
+    RPLIDAR="rplidar:=True"
+else
+    RPLIDAR="rplidar:=False"
+    echo "RPLIDAR / UART Bridge not found!"
+fi
+
+ros2 launch deepracer_launcher deepracer_launcher.py ${INFERENCE_ENGINE} ${INFERENCE_DEVICE} ${BATTERY_DUMMY} ${LOGGING_MODE} ${LOGGING_PROVIDER} ${CAMERA_MODE} ${RPLIDAR}

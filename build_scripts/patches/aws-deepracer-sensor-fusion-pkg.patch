@@ -1,5 +1,5 @@
 diff --git a/sensor_fusion_pkg/src/sensor_fusion_node.cpp b/sensor_fusion_pkg/src/sensor_fusion_node.cpp
-index 028191a..e73c830 100644
+index 028191a..b6d02c3 100644
 --- a/sensor_fusion_pkg/src/sensor_fusion_node.cpp
 +++ b/sensor_fusion_pkg/src/sensor_fusion_node.cpp
 @@ -111,6 +111,11 @@ namespace SensorFusion {
@@ -22,7 +22,15 @@ index 028191a..e73c830 100644
      const char* LIDAR_MSG_TOPIC = "/rplidar_ros/scan";
  
      // Sensor configuration file path.
-@@ -162,6 +168,12 @@ namespace SensorFusion {
+@@ -155,13 +161,21 @@ namespace SensorFusion {
+           node_handle_(std::shared_ptr<SensorFusionNode>(this, [](auto *) {})),
+           image_transport_(std::shared_ptr<rclcpp::Node>(this, [](auto *) {})),
+           lidarOverlayProcessingObj_(LidarOverlay()),
+-          enableOverlayPublish_(true),
++          enableOverlay_(true),
+           imageWidth_(DEFAULT_IMAGE_WIDTH),
+           imageHeight_(DEFAULT_IMAGE_HEIGHT)
+         {
  
              RCLCPP_INFO(this->get_logger(), "%s started", node_name.c_str());
              this->declare_parameter<std::string>("image_transport", "raw");
@@ -32,10 +40,22 @@ index 028191a..e73c830 100644
 +            if (mode_param != "legacy" && mode_param != "modern") {
 +                RCLCPP_ERROR(this->get_logger(), "Invalid mode parameter value. Defaulting to legacy.");
 +            }
++            this->declare_parameter<bool>("enable_overlay", true);
++            enableOverlay_ = this->get_parameter("enable_overlay").as_bool();
              createDefaultSensorConfiguration();
              if (checkFile(SENSOR_CONFIGURATION_FILE_PATH)) {
                  setSensorConfigurationFromFile(sensorConfiguration_,
-@@ -212,16 +224,23 @@ namespace SensorFusion {
+@@ -185,7 +199,8 @@ namespace SensorFusion {
+ 
+             // Publisher to publish the overlay message with sector LiDAR information
+             // overlayed over the camera image frame.
+-            overlayImagePub_ = image_transport_.advertise(OVERLAY_MSG_TOPIC, 1);
++            if (enableOverlay_)
++                overlayImagePub_ = image_transport_.advertise(OVERLAY_MSG_TOPIC, 1);
+             
+             statusCheckService_ = this->create_service<deepracer_interfaces_pkg::srv::SensorStatusCheckSrv>(
+                                                                                 SENSOR_DATA_STATUS_SERVICE_NAME,
+@@ -212,19 +227,27 @@ namespace SensorFusion {
                                                                                           this,
                                                                                           std::placeholders::_1));
              // Subscriber to subscribe to the camera sensor messages published by the camera_pkg.
@@ -54,16 +74,26 @@ index 028191a..e73c830 100644
                                                                                                         this,
                                                                                                         std::placeholders::_1));
 -
-+            }
-             // Subscriber to subscribe to the camera display messages published by the camera_pkg.
-             image_transport::TransportHints ith(this);
-             RCLCPP_INFO(this->get_logger(), "image_transport configured to use %s", ith.getTransport().c_str());
+-            // Subscriber to subscribe to the camera display messages published by the camera_pkg.
+-            image_transport::TransportHints ith(this);
+-            RCLCPP_INFO(this->get_logger(), "image_transport configured to use %s", ith.getTransport().c_str());
 -            displaySub_ = image_transport_.subscribe<SensorFusionNode>(std::string(DISPLAY_MSG_TOPIC), 1, 
-+            displaySub_ = image_transport_.subscribe<SensorFusionNode>(DISPLAY_MSG_TOPIC, 1, 
-                                                                        &SensorFusionNode::displayCB, 
-                                                                        node_handle_, &ith);
- 
-@@ -279,29 +298,58 @@ namespace SensorFusion {
+-                                                                       &SensorFusionNode::displayCB, 
+-                                                                       node_handle_, &ith);
+-
++            }
++            if (enableOverlay_) {
++                // Subscriber to subscribe to the camera display messages published by the camera_pkg.
++                image_transport::TransportHints ith(this);
++                RCLCPP_INFO(this->get_logger(), "image_transport configured to use %s", ith.getTransport().c_str());
++                displaySub_ = image_transport_.subscribe<SensorFusionNode>(DISPLAY_MSG_TOPIC, 1, 
++                                                                        &SensorFusionNode::displayCB, 
++                                                                        node_handle_, &ith);
++            }
+             cameraImageCount_ = 0;
+         }
+         ~SensorFusionNode() = default;
+@@ -279,30 +302,56 @@ namespace SensorFusion {
              }
          }
  
@@ -114,20 +144,17 @@ index 028191a..e73c830 100644
 +                            }
                          }
                      }
-+
-+                    cv::resize(cv_bridge::toCvCopy(msg, "bgr8")->image, resizedImg, cv::Size(imageWidth_, imageHeight_));
-+                    cv::Mat overlayCVImage = lidarOverlayProcessingObj_.overlayLidarDataOnImage(resizedImg, sectorOverlayValues);
-+                    if(enableOverlayPublish_) {
-+                        // Publish Lidar Overlay
-+                        overlayImagePub_.publish(*(cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", overlayCVImage).toImageMsg().get()));
-+                    }
-                 }
+-                }
 -                cv::Mat resizedImg;
 -                cv::resize(cv_bridge::toCvCopy(msg, "bgr8")->image, resizedImg, cv::Size(imageWidth_, imageHeight_));
 -                cv::Mat overlayCVImage = lidarOverlayProcessingObj_.overlayLidarDataOnImage(resizedImg, sectorOverlayValues);
 -                if(enableOverlayPublish_) {
 -                    // Publish Lidar Overlay
--                    overlayImagePub_.publish(*(cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", overlayCVImage).toImageMsg().get()));
++
++                    cv::resize(cv_bridge::toCvCopy(msg, "bgr8")->image, resizedImg, cv::Size(imageWidth_, imageHeight_));
++                    cv::Mat overlayCVImage = lidarOverlayProcessingObj_.overlayLidarDataOnImage(resizedImg, sectorOverlayValues);
+                     overlayImagePub_.publish(*(cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", overlayCVImage).toImageMsg().get()));
+                 }
 +                else {
 +                    if (msg->height > imageHeight_) {
 +                        cv::resize(cv_bridge::toCvCopy(msg, "bgr8")->image, resizedImg, cv::Size(imageWidth_, imageHeight_));
@@ -135,10 +162,11 @@ index 028191a..e73c830 100644
 +                        resizedImg = cv_bridge::toCvCopy(msg, "bgr8")->image;
 +                    }
 +                    overlayImagePub_.publish(*(cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", resizedImg).toImageMsg().get()));
-                 }
++                }
              }
              catch (const std::exception &ex) {
-@@ -537,6 +585,7 @@ namespace SensorFusion {
+                 RCLCPP_ERROR(this->get_logger(), "Display callback failed: %s", ex.what());
+@@ -537,6 +586,7 @@ namespace SensorFusion {
          rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr lidarSub_;
          rclcpp::Subscription<deepracer_interfaces_pkg::msg::CameraMsg>::SharedPtr cameraSub_;
          image_transport::Subscriber displaySub_;
@@ -146,7 +174,12 @@ index 028191a..e73c830 100644
  
          rclcpp::Service<deepracer_interfaces_pkg::srv::LidarConfigSrv>::SharedPtr lidarConfigService_;
          rclcpp::Service<deepracer_interfaces_pkg::srv::SensorStatusCheckSrv>::SharedPtr statusCheckService_;
-@@ -560,9 +609,10 @@ namespace SensorFusion {
+@@ -556,13 +606,14 @@ namespace SensorFusion {
+         /// Hash map that stores the min/max of each servo.
+         std::unordered_map<std::string, std::unordered_map<std::string, float>> sensorConfiguration_;
+         /// Flag to enable publishing the overlay image.
+-        std::atomic<bool> enableOverlayPublish_;
++        std::atomic<bool> enableOverlay_;
          std::chrono::steady_clock::time_point lastLidarMsgRecievedTime;
          std::chrono::steady_clock::time_point lastCameraMsgRecievedTime;
          size_t cameraImageCount_;
