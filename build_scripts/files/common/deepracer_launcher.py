@@ -144,19 +144,23 @@ def launch_setup(context, *args, **kwargs):
                 'inference_engine': LaunchConfiguration("inference_engine").perform(context)
         }]
     )
-    rplidar_node = Node(
-        package='rplidar_ros',
-        namespace='rplidar_ros',
-        executable='rplidar_node',
-        name='rplidar_node',
-        parameters=[{
-                'serial_port': '/dev/ttyUSB0',
-                'serial_baudrate': 115200,
-                'frame_id': 'laser',
-                'inverted': False,
-                'angle_compensate': True,
-        }]
-    )
+
+    rplidar = str2bool(LaunchConfiguration('rplidar').perform(context))
+    if rplidar:
+        rplidar_node = Node(
+            package='rplidar_ros',
+            namespace='rplidar_ros',
+            executable='rplidar_node',
+            name='rplidar_node',
+            parameters=[{
+                    'serial_port': '/dev/ttyUSB0',
+                    'serial_baudrate': 115200,
+                    'frame_id': 'laser',
+                    'inverted': False,
+                    'angle_compensate': True,
+            }]
+        )
+
     sensor_fusion_node = Node(
         package='sensor_fusion_pkg',
         namespace='sensor_fusion_pkg',
@@ -164,7 +168,8 @@ def launch_setup(context, *args, **kwargs):
         name='sensor_fusion_node',
         parameters=[{
                 'camera_mode': camera_mode,
-                'image_transport': 'compressed'
+                'image_transport': 'compressed',
+                'enable_overlay': rplidar
         }]
     )
     servo_node = Node(
@@ -231,7 +236,6 @@ def launch_setup(context, *args, **kwargs):
     ld.append(battery_node)
     ld.append(inference_node)
     ld.append(model_optimizer_node)
-    ld.append(rplidar_node)
     ld.append(sensor_fusion_node)
     ld.append(servo_node)
     ld.append(status_led_node)
@@ -239,6 +243,9 @@ def launch_setup(context, *args, **kwargs):
     ld.append(webserver_publisher_node)
     ld.append(web_video_server_node)
     ld.append(bag_log_node)
+
+    if rplidar:
+        ld.append(rplidar_node)
 
     return ld
 
@@ -278,5 +285,9 @@ def generate_launch_description():
                 name="camera_mode",
                 default_value="legacy",
                 description="Legacy or modern camera integration"),
+            DeclareLaunchArgument(
+                name="rplidar",
+                default_value="True",
+                description="Enable RPLIDAR node"),                
             OpaqueFunction(function=launch_setup)
         ])
