@@ -139,7 +139,7 @@ for pkg in $PACKAGES; do
         echo -e "\n### Building aws-deepracer-device-console $VERSION ###\n"
         dpkg-deb -R src/aws-deepracer-device-console_*amd64.deb aws-deepracer-device-console
         cd aws-deepracer-device-console
-        sed -i 's/Architecture: amd64/Architecture: all/' DEBIAN/control
+        sed -i "s/Architecture: amd64/Architecture: $TARGET_ARCH/" DEBIAN/control
         sed -i "s/Version: .*/Version: $VERSION/" DEBIAN/control
         sed -i 's/pyclean -p aws-deepracer-device-console/ /' DEBIAN/prerm
         sed -i 's/.range-btn-minus button,.range-btn-plus button{background-color:#aab7b8!important;border-radius:4px!important;border:1px solid #879596!important}/.range-btn-minus button,.range-btn-plus button{background-color:#aab7b8!important;border-radius:4px!important;border:1px solid #879596!important;touch-action: manipulation;user-select: none;}/' opt/aws/deepracer/lib/device_console/static/bundle.css
@@ -155,6 +155,11 @@ for pkg in $PACKAGES; do
         mv $FILE $(echo $DIR/dist/$FILE | sed -e 's/\+/\-/')
     fi
 
+    PACKAGE_DEPS="gnupg, ros-$ROS_DISTRO-ros-core, ros-$ROS_DISTRO-image-transport, ros-$ROS_DISTRO-compressed-image-transport, ros-$ROS_DISTRO-pybind11-vendor, ros-$ROS_DISTRO-cv-bridge"
+    if [ "$ROS_DISTRO" == "humble" ]; then
+        PACKAGE_DEPS="$PACKAGE_DEPS, ros-$ROS_DISTRO-rplidar-ros, ros-$ROS_DISTRO-web-video-server, ros-$ROS_DISTRO-rosbag2, ros-$ROS_DISTRO-rosbag2-py, ros-$ROS_DISTRO-rosbag2-storage-mcap"
+    fi
+
     if [ "$pkg" == "aws-deepracer-core" ]; then
         VERSION=$(jq -r ".[\"aws-deepracer-core\"]" $DIR/build_scripts/versions.json)
         echo -e "\n### Building aws-deepracer-core $VERSION ###\n"
@@ -163,12 +168,15 @@ for pkg in $PACKAGES; do
         sed -i "s/Architecture: amd64/Architecture: $TARGET_ARCH/" DEBIAN/control
         sed -i "s/Version: .*/Version: $VERSION/" DEBIAN/control
         sed -i 's/python-apt/python3-apt/' DEBIAN/control
-        sed -i "/Depends/ s/$/, ros-$ROS_DISTRO-compressed-image-transport, ros-$ROS_DISTRO-pybind11-vendor, gnupg/" DEBIAN/control
+        sed -i "/Depends/ s/$/, $PACKAGE_DEPS/" DEBIAN/control
         sed -i 's/ExecStop=\/opt\/aws\/deepracer\/util\/otg_eth.sh stop/KillSignal=2/' etc/systemd/system/deepracer-core.service
         rm -rf opt/aws/deepracer/lib/*
         cp $DIR/build_scripts/files/common/start_ros.sh opt/aws/deepracer
         cp -r $DIR/install/* opt/aws/deepracer/lib/
         cp -r $DIR/build_scripts/files/common/aws-deepracer-core-prerm DEBIAN/prerm
+        if [ "$ROS_DISTRO" == "humble" ]; then
+            cp -r $DIR/build_scripts/files/pi/aws-deepracer-core-postinst DEBIAN/postinst
+        fi
         rm DEBIAN/preinst
         cd ..
         dpkg-deb --root-owner-group -b aws-deepracer-core

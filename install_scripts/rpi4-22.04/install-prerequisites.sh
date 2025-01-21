@@ -38,10 +38,9 @@ fi
 mkdir -p $DIR/dist
 
 systemctl stop unattended-upgrades
-apt update -y && apt remove -y unattended-upgrades
+apt update -y && apt remove -y --autoremove unattended-upgrades needrestart
 
 # First ensure that the Ubuntu Universe repository is enabled.
-apt install -y software-properties-common curl locales
 add-apt-repository -y universe
 apt update -y && apt upgrade -y
 
@@ -63,7 +62,7 @@ ufw allow "OpenSSH"
 ufw enable
 
 # Install other tools / configure network management
-apt -y install network-manager wireless-tools net-tools i2c-tools v4l-utils libraspberrypi-bin raspi-config
+apt -y --no-install-recommends install curl network-manager wireless-tools net-tools i2c-tools v4l-utils libraspberrypi-bin raspi-config 
 cp $DIR/build_scripts/files/pi/10-manage-wifi.conf /etc/NetworkManager/conf.d/
 systemctl disable systemd-networkd-wait-online
 
