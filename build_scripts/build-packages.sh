@@ -110,7 +110,7 @@ fi
 cd $DIR/pkg-build
 for pkg in $PACKAGES; do
     if [ "$pkg" == "aws-deepracer-util" ]; then
-        VERSION=$(jq -r ".[\"aws-deepracer-util\"]" $DIR/build_scripts/versions.json)
+        VERSION=$(jq -r ".[\"aws-deepracer-util\"]" $DIR/build_scripts/versions.json)-$(lsb_release -cs)
         echo -e "\n### Building aws-deepracer-util $VERISON ###\n"
         dpkg-deb -R src/aws-deepracer-util_*amd64.deb aws-deepracer-util
         cd aws-deepracer-util
@@ -135,7 +135,7 @@ for pkg in $PACKAGES; do
     fi
 
     if [ "$pkg" == "aws-deepracer-device-console" ]; then
-        VERSION=$(jq -r ".[\"aws-deepracer-device-console\"]" $DIR/build_scripts/versions.json)
+        VERSION=$(jq -r ".[\"aws-deepracer-device-console\"]" $DIR/build_scripts/versions.json)-$(lsb_release -cs)
         echo -e "\n### Building aws-deepracer-device-console $VERSION ###\n"
         dpkg-deb -R src/aws-deepracer-device-console_*amd64.deb aws-deepracer-device-console
         cd aws-deepracer-device-console
@@ -155,13 +155,12 @@ for pkg in $PACKAGES; do
         mv $FILE $(echo $DIR/dist/$FILE | sed -e 's/\+/\-/')
     fi
 
-    PACKAGE_DEPS="gnupg, ros-$ROS_DISTRO-ros-core, ros-$ROS_DISTRO-image-transport, ros-$ROS_DISTRO-compressed-image-transport, ros-$ROS_DISTRO-pybind11-vendor, ros-$ROS_DISTRO-cv-bridge"
-    if [ "$ROS_DISTRO" == "humble" ]; then
-        PACKAGE_DEPS="$PACKAGE_DEPS, ros-$ROS_DISTRO-rplidar-ros, ros-$ROS_DISTRO-web-video-server, ros-$ROS_DISTRO-rosbag2, ros-$ROS_DISTRO-rosbag2-py, ros-$ROS_DISTRO-rosbag2-storage-mcap"
-    fi
-
     if [ "$pkg" == "aws-deepracer-core" ]; then
-        VERSION=$(jq -r ".[\"aws-deepracer-core\"]" $DIR/build_scripts/versions.json)
+        VERSION=$(jq -r ".[\"aws-deepracer-core\"]" $DIR/build_scripts/versions.json)-$(lsb_release -cs)
+        PACKAGE_DEPS="gnupg, ros-$ROS_DISTRO-ros-core, ros-$ROS_DISTRO-image-transport, ros-$ROS_DISTRO-compressed-image-transport, ros-$ROS_DISTRO-pybind11-vendor, ros-$ROS_DISTRO-cv-bridge"
+        if [ "$ROS_DISTRO" == "humble" ]; then
+            PACKAGE_DEPS="$PACKAGE_DEPS, ros-$ROS_DISTRO-rplidar-ros, ros-$ROS_DISTRO-camera-ros, ros-$ROS_DISTRO-web-video-server, ros-$ROS_DISTRO-rosbag2, ros-$ROS_DISTRO-rosbag2-py, ros-$ROS_DISTRO-rosbag2-storage-mcap"
+        fi
         echo -e "\n### Building aws-deepracer-core $VERSION ###\n"
         dpkg-deb -R src/aws-deepracer-core_*amd64.deb aws-deepracer-core
         cd aws-deepracer-core
@@ -171,9 +170,11 @@ for pkg in $PACKAGES; do
         sed -i "/Depends/ s/$/, $PACKAGE_DEPS/" DEBIAN/control
         sed -i 's/ExecStop=\/opt\/aws\/deepracer\/util\/otg_eth.sh stop/KillSignal=2/' etc/systemd/system/deepracer-core.service
         rm -rf opt/aws/deepracer/lib/*
-        cp $DIR/build_scripts/files/common/start_ros.sh opt/aws/deepracer
+        cp $DIR/build_scripts/files/common/start_ros.sh opt/aws/deepracer/
+        cp $DIR/build_scripts/files/common/logging.conf opt/aws/deepracer/
+        cp $DIR/build_scripts/files/common/aws-deepracer-core-prerm DEBIAN/prerm
+        cp $DIR/build_scripts/files/common/aws-deepracer-core-conffiles DEBIAN/conffiles
         cp -r $DIR/install/* opt/aws/deepracer/lib/
-        cp -r $DIR/build_scripts/files/common/aws-deepracer-core-prerm DEBIAN/prerm
         if [ "$ROS_DISTRO" == "humble" ]; then
             cp -r $DIR/build_scripts/files/pi/aws-deepracer-core-postinst DEBIAN/postinst
         fi
@@ -186,7 +187,7 @@ for pkg in $PACKAGES; do
     fi
 
     if [ "$pkg" == "aws-deepracer-sample-models" ]; then
-        VERSION=$(jq -r ".[\"aws-deepracer-sample-models\"]" $DIR/build_scripts/versions.json)
+        VERSION=$(jq -r ".[\"aws-deepracer-sample-models\"]" $DIR/build_scripts/versions.json)-$(lsb_release -cs)
         echo -e "\n### Building aws-deepracer-sample-models $VERISON ###\n"
         dpkg-deb -R src/aws-deepracer-sample-models_*amd64.deb aws-deepracer-sample-models
         cd aws-deepracer-sample-models
