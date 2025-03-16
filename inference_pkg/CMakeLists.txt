@@ -20,6 +20,7 @@ endif()
 
 FetchContent_Declare(tensorflow-lite
   GIT_REPOSITORY https://github.com/tensorflow/tensorflow.git
+  GIT_TAG v2.17.1  # Specify the desired tag here
 )
 FetchContent_Populate(tensorflow-lite)
 
