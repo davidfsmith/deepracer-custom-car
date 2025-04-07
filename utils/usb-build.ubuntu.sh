@@ -221,20 +221,38 @@ unmount_dr_iso()
 }
 check_packages(){
     need_install=false
-    packages=$(echo {mtools,exfat-utils,parted,pv,dosfstools,syslinux})        
-    for package in $packages ; do
-        dpkg-query -W -f='${Package}\n' | grep ^$package$ > /dev/null
-        if [ $? != 0 ] ; then
+    
+    # Check Ubuntu version
+    ubuntu_version=$(lsb_release -rs)
+    log "Detected Ubuntu version: $ubuntu_version"
+    
+    # Base packages needed in all versions
+    packages="mtools parted pv dosfstools syslinux"
+    
+    # Version-specific packages
+    if [ "$(echo "$ubuntu_version >= 22.04" | bc)" -eq 1 ]; then
+        # For Ubuntu 22.04 and newer
+        packages="$packages exfatprogs"
+    else
+        # For older Ubuntu versions
+        packages="$packages exfat-utils"
+    fi
+    
+    # Check which packages need installation
+    for package in $packages; do
+        dpkg-query -W -f='${Package}\n' | grep "^$package$" > /dev/null
+        if [ $? != 0 ]; then
             need_install=true
+            log "  --> Package $package needs to be installed"
         fi
-    done  
+    done
+    
     if [ "$need_install" = "true" ]; then
         log "  -> Installing additional packages ..."
-        # sudo add-apt-repository ppa:mkusb/ppa -y 2>&1 | while read line ; do log "  --> $line" ; done # > /dev/null
-        sudo apt                update        -y 2>&1 | while read line ; do log "  --> $line" ; done # > /dev/null
-        for package in $packages ; do
-            sudo apt-get --ignore-missing -o DPkg::Lock::Timeout=-1 install $package -y -qq 2>&1 | while read line ; do log "  --> $line" ; done # > /dev/null
-        done  
+        sudo apt update -y 2>&1 | while read line; do log "  --> $line"; done
+        for package in $packages; do
+            sudo apt-get --ignore-missing -o DPkg::Lock::Timeout=-1 install $package -y -qq 2>&1 | while read line; do log "  --> $line"; done
+        done
     else
         log "  -> All additional packages are already installed..."
     fi
