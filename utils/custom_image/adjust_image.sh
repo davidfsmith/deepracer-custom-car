@@ -23,8 +23,8 @@ apt-mark manual ubuntu-standard ros-foxy-ros-base libboost-all-dev
 
 # Remove snap
 apt remove -y snapd 
-rm -rf /var/snap
-rm -rf /var/cache/snapd
+rm -rf /var/snap /var/lib/snapd /var/cache/snapd /snap
+rm $(find /etc/systemd/system -name snap*) /etc/init/snap* /etc/init.d/snap*
 
 # Remove unnecessary packages
 apt purge -y ubuntu-desktop ubuntu-desktop-minimal ubuntu-wallpapers ros-foxy-desktop firefox-locale-en firefox fonts-indic gnome-shell gnome-keyring gnome-terminal gnome-control-center language-pack-gnome-en-base wbritish wamerican mplayer hplip gvfs
