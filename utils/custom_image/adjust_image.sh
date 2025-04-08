@@ -1,12 +1,16 @@
 # Update OpenVINO
+echo -e -n "\nUpdate OpenVINO\n"
 curl -o GPG-PUB-KEY-INTEL-SW-PRODUCTS https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS
+rm GPG-PUB-KEY-INTEL-SW-PRODUCTS
 
 # Update ROS
+echo -e -n "\nUpdate ROS\n"
 curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2-latest.list >/dev/null
 
 # Community Packages
+echo -e -n "\nAdd Community Packages\n"
 curl -sSL https://raw.githubusercontent.com/aws-deepracer-community/deepracer-custom-car/refs/heads/main/install_scripts/common/deepracer-community.asc -o /etc/apt/trusted.gpg.d/deepracer-community.asc
 curl -sSL https://raw.githubusercontent.com/aws-deepracer-community/deepracer-custom-car/refs/heads/main/install_scripts/aws-20.04/aws_deepracer-community.list -o /etc/apt/sources.list.d/aws_deepracer-community.list
 
@@ -30,7 +34,6 @@ apt install -y --no-install-recommends python3-websocket python3-click aws-deepr
 
 # Disable IPV6 on all interfaces
 echo -e -n "\nDisable IPV6\n"
-cp /etc/sysctl.conf ${backupDir}/sysctl.conf.bak
 printf "net.ipv6.conf.all.disable_ipv6 = 1" >>/etc/sysctl.conf
 
 # Grant deepracer user sudoers rights
@@ -58,3 +61,10 @@ rm /swapfile
 # Start SSH on startup
 echo -e -n "\nStart SSH on startup\n"
 systemctl enable ssh
+
+# Clean-up
+echo -e -n "\nClean-up\n"
+rm -rf /var/lib/apt/lists/*
+rm -rf /var/cache/apt/archives/*.deb
+rm -rf /root/.ros
+rm -rf /root/.cache
