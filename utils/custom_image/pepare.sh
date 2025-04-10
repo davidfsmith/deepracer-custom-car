@@ -16,9 +16,11 @@ mount --bind /dev /mnt/DEEPRACER/dev
 mount --bind /dev/pts /mnt/DEEPRACER/dev/pts
 mount --bind /run /mnt/DEEPRACER/run
 
-#### RUN THE CUSTOMIZATION SCRIPT IN CHROOT ####
+# Move adjust_image.sh to the root directory of the mounted filesystem
 cp adjust_image.sh /mnt/DEEPRACER/root/
 chmod +x /mnt/DEEPRACER/root/adjust_image.sh
+
+#### RUN THE CUSTOMIZATION SCRIPT IN CHROOT ####
 
 # Clean up
 rm /mnt/DEEPRACER/root/.bash_history
@@ -30,7 +32,16 @@ umount /mnt/DEEPRACER/dev
 umount /mnt/DEEPRACER/proc
 umount /mnt/DEEPRACER/run
 umount /mnt/DEEPRACER/sys
+
+# Resize the filesystem and partition
+btrfs filesystem resize -8g /mnt/DEEPRACER
+parted /dev/sdc resizepart 3 8249212927B ### MANUAL STEP
+cryptsetup resize /dev/mapper/encrypt_blk
+
+# Unmount the encrypted partition and close it
 umount /mnt/DEEPRACER
 cryptsetup luksClose encrypt_blk
-dcfldd if=/dev/sdc of=dlrc_image_20250407.1_tpm.img bs=1M count=15810
+
+# Create the image file
+dcfldd if=/dev/sdc of=dlrc_image_20250409.1_tpm.img bs=4M count=$((8249212927/4194304+1)) conv=notrunc statusinterval=1000
 

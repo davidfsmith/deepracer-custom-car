@@ -24,13 +24,15 @@ apt-mark manual ubuntu-standard ros-foxy-ros-base libboost-all-dev
 # Remove snap
 apt remove -y snapd 
 rm -rf /var/snap /var/lib/snapd /var/cache/snapd /snap
-rm $(find /etc/systemd/system -name snap*) /etc/init/snap* /etc/init.d/snap*
+rm $(find /etc/systemd/system -name snap*)
 
 # Remove unnecessary packages
 apt purge -y ubuntu-desktop ubuntu-desktop-minimal ubuntu-wallpapers ros-foxy-desktop firefox-locale-en firefox fonts-indic gnome-shell gnome-keyring gnome-terminal gnome-control-center language-pack-gnome-en-base wbritish wamerican mplayer hplip gvfs
 apt autoremove -y --purge
-apt upgrade -o Dpkg::Options::="--force-overwrite" -o Dpkg::Options::='--force-confold' -y
+apt upgrade -y -o Dpkg::Options::="--force-overwrite" -o Dpkg::Options::='--force-confold' 
 apt install -y --no-install-recommends python3-websocket python3-click aws-deepracer-community-device-console
+apt autoremove -y --purge
+apt clean
 
 # Disable IPV6 on all interfaces
 echo -e -n "\nDisable IPV6\n"
@@ -58,13 +60,9 @@ swapoff -a
 sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 rm /swapfile
 
-# Start SSH on startup
-echo -e -n "\nStart SSH on startup\n"
-systemctl enable ssh
-
 # Clean-up
 echo -e -n "\nClean-up\n"
 rm -rf /var/lib/apt/lists/*
-rm -rf /var/cache/apt/archives/*.deb
 rm -rf /root/.ros
 rm -rf /root/.cache
+rm /var/log/dpkg.log
