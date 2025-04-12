@@ -3,6 +3,7 @@ project(inference_pkg)
 include(FetchContent)
 
 set(ABSL_PROPAGATE_CXX_STD ON)
+set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -15,7 +16,7 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wno-deprecated-declarations -Wno-ignored-attributes)
+  add_compile_options(-Wno-deprecated-declarations -Wno-ignored-attributes -Wno-deprecated)
 endif()
 
 FetchContent_Declare(tensorflow-lite
@@ -38,8 +39,6 @@ find_package(image_transport REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(ngraph REQUIRED)
-find_package(InferenceEngine REQUIRED)
 find_package(OpenCV 4.2 QUIET
   COMPONENTS
     opencv_core
@@ -57,29 +56,60 @@ if(NOT OpenCV_FOUND)
   )
 endif()
 
-add_executable(inference_node
+# Check if ROS_DISTRO is jazzy and define a macro
+if("$ENV{ROS_DISTRO}" STREQUAL "jazzy")
+  add_definitions(-DROS_DISTRO_JAZZY)
+
+  add_executable(inference_node
     src/inference_node.cpp
     src/tflite_inference_eng.cpp
-    src/intel_inference_eng.cpp
     src/image_process.cpp
-)
+  )
 
-target_include_directories(inference_node PRIVATE
+  target_include_directories(inference_node PRIVATE
+    include
+    ${OpenCV_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_BINARY_DIR}/flatbuffers/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  )
+
+  target_link_libraries(inference_node  -lm -ldl
+    ${OpenCV_LIBRARIES}
+    tensorflow-lite
+  )
+
+  ament_target_dependencies(inference_node rclcpp deepracer_interfaces_pkg sensor_msgs std_msgs cv_bridge image_transport OpenCV)
+
+else()
+
+  find_package(ngraph REQUIRED)
+  find_package(InferenceEngine REQUIRED)
+
+  add_executable(inference_node
+      src/inference_node.cpp
+      src/tflite_inference_eng.cpp
+      src/intel_inference_eng.cpp
+      src/image_process.cpp
+      )
+
+  target_include_directories(inference_node PRIVATE
     include
     ${OpenCV_INCLUDE_DIRS}
     ${InferenceEngine_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}/flatbuffers/include
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-)
+  )
 
-target_link_libraries(inference_node  -lm -ldl
-  ${OpenCV_LIBRARIES}
-  tensorflow-lite
-  ${InferenceEngine_LIBRARIES}
-  ${NGRAPH_LIBRARIES}  
-)
+  target_link_libraries(inference_node  -lm -ldl
+    ${OpenCV_LIBRARIES}
+    tensorflow-lite
+    ${InferenceEngine_LIBRARIES}
+    ${NGRAPH_LIBRARIES}
+    )
 
-ament_target_dependencies(inference_node rclcpp deepracer_interfaces_pkg sensor_msgs std_msgs cv_bridge image_transport OpenCV InferenceEngine ngraph) 
+  ament_target_dependencies(inference_node rclcpp deepracer_interfaces_pkg sensor_msgs std_msgs cv_bridge image_transport OpenCV InferenceEngine ngraph)
+
+endif()
 
 install(TARGETS
   inference_node

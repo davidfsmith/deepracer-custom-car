@@ -14,7 +14,9 @@
 //   limitations under the License.                                              //
 ///////////////////////////////////////////////////////////////////////////////////
 
+#ifndef ROS_DISTRO_JAZZY
 #include "inference_pkg/intel_inference_eng.hpp"
+#endif
 #include "inference_pkg/tflite_inference_eng.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "deepracer_interfaces_pkg/srv/inference_state_srv.hpp"
@@ -62,7 +64,7 @@ namespace InferTask {
             // Inference Engine name; TFLITE or OPENVINO
             inferenceEngine_ = this->get_parameter("inference_engine").as_string();
 
-            loadModelServiceCbGrp_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
+            loadModelServiceCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
             loadModelService_ = this->create_service<deepracer_interfaces_pkg::srv::LoadModelSrv>("load_model",
                                                                                                   std::bind(&InferTask::InferenceNodeMgr::LoadModelHdl,
                                                                                                   this,
@@ -72,7 +74,7 @@ namespace InferTask {
                                                                                                   ::rmw_qos_profile_default,
                                                                                                   loadModelServiceCbGrp_);
 
-            setInferenceStateServiceCbGrp_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
+            setInferenceStateServiceCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
             setInferenceStateService_ = this->create_service<deepracer_interfaces_pkg::srv::InferenceStateSrv>("inference_state",
                                                                                                                std::bind(&InferTask::InferenceNodeMgr::InferStateHdl,
                                                                                                                this,
@@ -141,7 +143,9 @@ namespace InferTask {
                         if (inferenceEngine_.compare("TFLITE") == 0) {
                             itInferTask->second.reset(new TFLiteInferenceEngine::RLInferenceModel(this->shared_from_this(), "/sensor_fusion_pkg/sensor_msg"));
                         } else {
+                            #ifndef ROS_DISTRO_JAZZY
                             itInferTask->second.reset(new IntelInferenceEngine::RLInferenceModel(this->shared_from_this(), "/sensor_fusion_pkg/sensor_msg"));
+                            #endif
                         }
                         
                         break;
@@ -167,11 +171,11 @@ namespace InferTask {
 
     private:
         /// ROS callback group for load model service.
-        rclcpp::callback_group::CallbackGroup::SharedPtr loadModelServiceCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr loadModelServiceCbGrp_;
         /// ROS service to load inference model.
         rclcpp::Service<deepracer_interfaces_pkg::srv::LoadModelSrv>::SharedPtr loadModelService_;
         /// ROS callback group for set inference state service.
-        rclcpp::callback_group::CallbackGroup::SharedPtr setInferenceStateServiceCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr setInferenceStateServiceCbGrp_;
         /// ROS service to set the inference state to start/stop running inference.
         rclcpp::Service<deepracer_interfaces_pkg::srv::InferenceStateSrv>::SharedPtr setInferenceStateService_;
 
