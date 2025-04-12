@@ -68,7 +68,7 @@ namespace PWM {
     void ServoMgr::servoSubscriber(const deepracer_interfaces_pkg::msg::ServoCtrlMsg::SharedPtr servoMsg) {
         auto setPWM = [&](auto &servo, auto value, auto type) {
             if (value < -1.0 || value > 1.0) {
-                RCLCPP_ERROR(logger_, "Invalid servo request: %d", value);
+                RCLCPP_ERROR(logger_, "Invalid servo request: %f", value);
                 return;
             }
 
