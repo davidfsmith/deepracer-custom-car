@@ -51,10 +51,6 @@ srv/_*.py
 qtcreator-*
 *.user
 
-/planning/cfg
-/planning/docs
-/planning/src
-
 *~
 
 # Emacs
@@ -64,15 +60,15 @@ qtcreator-*
 CATKIN_IGNORE
 
 # Other directories
-deps/
+/deps/
 dist/
 .venv/
 pkg-build/
-src/*
-!src/.rosinstall-core
-!src/.rosinstall-foxy
-!src/.rosinstall-humble
-!src/.rosinstall-jazzy
+src/deps/*
+!src/deps/.rosinstall-core
+!src/deps/.rosinstall-foxy
+!src/deps/.rosinstall-humble
+!src/deps/.rosinstall-jazzy
 
 # Test module
 test/install/
