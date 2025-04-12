@@ -45,6 +45,11 @@ namespace SysCtrl {
         numStates
     };
 
+    enum CameraMode {
+        CAMERA_LEGACY_MODE,
+        CAMERA_MODERN_MODE
+    };
+
     const char* VEHICLE_STATE_SRV = "vehicle_state";
     const char* ENABLE_STATE_SRV = "enable_state";
     const char* MODEL_STATE_SRV = "model_state";
@@ -68,62 +73,70 @@ namespace SysCtrl {
         {
             RCLCPP_INFO(this->get_logger(), "%s started", nodeName.c_str());
 
-            vehicleCtrlModesServiceCbGrp_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);
+            this->declare_parameter<std::string>("camera_mode", "legacy");
+            std::string mode_param = this->get_parameter("camera_mode").as_string();
+            mode_ = (mode_param == "modern") ? CAMERA_MODERN_MODE : CAMERA_LEGACY_MODE;
+            if (mode_param != "legacy" && mode_param != "modern") {
+                RCLCPP_ERROR(this->get_logger(), "Invalid mode parameter value. Defaulting to legacy.");
+            }
+
+            auto qos_default = rclcpp::QoS(rclcpp::SystemDefaultsQoS()).get_rmw_qos_profile();
+            vehicleCtrlModesServiceCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
             getVehicleCtrlModesService_ = this->create_service<deepracer_interfaces_pkg::srv::GetCtrlModesSrv>(GET_CTRL_MODES_SRV,
                                                                                                                std::bind(&SysCtrl::CtrlNodeMgr::getCtrlModesHdl,
                                                                                                                this,
                                                                                                                std::placeholders::_1,
                                                                                                                std::placeholders::_2,
                                                                                                                std::placeholders::_3),
-                                                                                                               ::rmw_qos_profile_default,
+                                                                                                               qos_default,
                                                                                                                vehicleCtrlModesServiceCbGrp_);
 
-            vehicleModeServiceCbGrp_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);
+            vehicleModeServiceCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
             setVehicleModeService_ = this->create_service<deepracer_interfaces_pkg::srv::ActiveStateSrv>(VEHICLE_STATE_SRV,
                                                                                                          std::bind(&SysCtrl::CtrlNodeMgr::stateHdl,
                                                                                                          this,
                                                                                                          std::placeholders::_1,
                                                                                                          std::placeholders::_2,
                                                                                                          std::placeholders::_3),
-                                                                                                         ::rmw_qos_profile_default,
+                                                                                                         qos_default,
                                                                                                          vehicleModeServiceCbGrp_);
-            activateVehicleServiceCbGrp_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);
+            activateVehicleServiceCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
             activateVehicleService_ = this->create_service<deepracer_interfaces_pkg::srv::EnableStateSrv>(ENABLE_STATE_SRV,
                                                                                                           std::bind(&SysCtrl::CtrlNodeMgr::ctrlStateHdl,
                                                                                                           this,
                                                                                                           std::placeholders::_1,
                                                                                                           std::placeholders::_2,
                                                                                                           std::placeholders::_3),
-                                                                                                          ::rmw_qos_profile_default,
+                                                                                                          qos_default,
                                                                                                           activateVehicleServiceCbGrp_);
 
 
-            loadModelCbGrp_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);
+            loadModelCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
             loadModelService_ = this->create_service<deepracer_interfaces_pkg::srv::ModelStateSrv>(MODEL_STATE_SRV,
                                                                                                     std::bind(&SysCtrl::CtrlNodeMgr::loadModelHdl,
                                                                                                     this,
                                                                                                     std::placeholders::_1,
                                                                                                     std::placeholders::_2,
                                                                                                     std::placeholders::_3),
-                                                                                                    ::rmw_qos_profile_default,
+                                                                                                    qos_default,
                                                                                                     loadModelCbGrp_);
-            isModelLoadingCbGrp_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);
+            isModelLoadingCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
             isModelLoadingService_ = this->create_service<deepracer_interfaces_pkg::srv::GetModelLoadingStatusSrv>(IS_MODEL_LOADING_SRV,
                                                                                                                     std::bind(&SysCtrl::CtrlNodeMgr::isModelLoadingHdl,
                                                                                                                     this,
                                                                                                                     std::placeholders::_1,
                                                                                                                     std::placeholders::_2,
                                                                                                                     std::placeholders::_3),
-                                                                                                                    ::rmw_qos_profile_default,
+                                                                                                                    qos_default,
                                                                                                                     isModelLoadingCbGrp_);
-            vehicleCalibrationCbGrp_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
+            vehicleCalibrationCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
             getCarCalibrationService_ = this->create_service<deepracer_interfaces_pkg::srv::GetCalibrationSrv>(GET_CAL_SRV,
                                                                                                                std::bind(&SysCtrl::CtrlNodeMgr::getCarCalHdl,
                                                                                                                this,
                                                                                                                std::placeholders::_1,
                                                                                                                std::placeholders::_2,
                                                                                                                std::placeholders::_3),
-                                                                                                               ::rmw_qos_profile_default,
+                                                                                                               qos_default,
                                                                                                                vehicleCalibrationCbGrp_);
             setCarCalibrationService_ = this->create_service<deepracer_interfaces_pkg::srv::SetCalibrationSrv>(SET_CAL_SRV,
                                                                                                                std::bind(&SysCtrl::CtrlNodeMgr::setCarCalHdl,
@@ -131,17 +144,17 @@ namespace SysCtrl {
                                                                                                                std::placeholders::_1,
                                                                                                                std::placeholders::_2,
                                                                                                                std::placeholders::_3),
-                                                                                                               ::rmw_qos_profile_default,
+                                                                                                               qos_default,
                                                                                                                vehicleCalibrationCbGrp_);
 
-            vehicleLedCbGrp_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
+            vehicleLedCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
             getCarLedService_ = this->create_service<deepracer_interfaces_pkg::srv::GetLedCtrlSrv>(GET_LED_SRV,
                                                                                                    std::bind(&SysCtrl::CtrlNodeMgr::getCarLedHdl,
                                                                                                    this,
                                                                                                    std::placeholders::_1,
                                                                                                    std::placeholders::_2,
                                                                                                    std::placeholders::_3),
-                                                                                                   ::rmw_qos_profile_default,
+                                                                                                   qos_default,
                                                                                                    vehicleLedCbGrp_);
             setCarLedService_ = this->create_service<deepracer_interfaces_pkg::srv::SetLedCtrlSrv>(SET_LED_SRV,
                                                                                                     std::bind(&SysCtrl::CtrlNodeMgr::setCarLedHdl,
@@ -149,17 +162,17 @@ namespace SysCtrl {
                                                                                                     std::placeholders::_1,
                                                                                                     std::placeholders::_2,
                                                                                                     std::placeholders::_3),
-                                                                                                    ::rmw_qos_profile_default,
+                                                                                                    qos_default,
                                                                                                     vehicleLedCbGrp_);
 
-            autonomousThrottleCbGrp_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);
+            autonomousThrottleCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
             setAutonomousThrottleService_ = this->create_service<deepracer_interfaces_pkg::srv::NavThrottleSrv>(AUTONOMOUS_THROTTLE_SRV,
                                                                                                                 std::bind(&SysCtrl::CtrlNodeMgr::autoThrottleHdl,
                                                                                                                 this,
                                                                                                                 std::placeholders::_1,
                                                                                                                 std::placeholders::_2,
                                                                                                                 std::placeholders::_3),
-                                                                                                                ::rmw_qos_profile_default,
+                                                                                                                qos_default,
                                                                                                                 autonomousThrottleCbGrp_);
             // TODO: Find better way to initialize requiring to exit constructor to use shared_from_this()
             timer_ = this->create_wall_timer(std::chrono::seconds(1), std::bind(&SysCtrl::CtrlNodeMgr::init, this));
@@ -174,8 +187,10 @@ namespace SysCtrl {
                 activeState_->second->setStateActive(true);
                 initialized_ = true;
                 timer_->cancel();
-                waitForServices();
-                enableVideo();
+                if (mode_ == CAMERA_LEGACY_MODE) {
+                    waitForServices();
+                    enableVideo();
+                }
             }
         }
 
@@ -199,13 +214,15 @@ namespace SysCtrl {
          }
 
         void waitForServices(){
+            auto qos_default = rclcpp::QoS(rclcpp::SystemDefaultsQoS()).get_rmw_qos_profile();
             videoClientCbGrp_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
             videoClient_ = this->create_client<deepracer_interfaces_pkg::srv::VideoStateSrv>("/camera_pkg/media_state",
-                                                                                             rmw_qos_profile_services_default,
+                                                                                             qos_default,
                                                                                              videoClientCbGrp_);
             while (!videoClient_->wait_for_service(std::chrono::seconds(1))) {
                 if (!rclcpp::ok()) {
-                    RCLCPP_ERROR(this->get_logger(), "Camera node failed");
+                    RCLCPP_ERROR(this->get_logger(), "Waiting for camera node was interrupted");
+                    return;
                 }
                 RCLCPP_INFO(this->get_logger(), "Camera node not available, waiting again...");
             }
@@ -262,7 +279,7 @@ namespace SysCtrl {
         void loadModelHdl(const std::shared_ptr<rmw_request_id_t> request_header,
                           std::shared_ptr<deepracer_interfaces_pkg::srv::ModelStateSrv::Request> req,
                           std::shared_ptr<deepracer_interfaces_pkg::srv::ModelStateSrv::Response> res) {
-            RCLCPP_INFO(this->get_logger(), "loadModelHdl %d", request_header->sequence_number);
+            RCLCPP_INFO(this->get_logger(), "loadModelHdl %d", (int) request_header->sequence_number);
             res->error = 1;
             if (activeState_ == stateList_.end()) {
                 RCLCPP_ERROR(this->get_logger(), "No active state");
@@ -403,27 +420,28 @@ namespace SysCtrl {
         std::unordered_map<int, std::shared_ptr<CtrlStateBase>>::const_iterator activeState_;
 
         /// ROS callback group object to be passed to the videoClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr videoClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr videoClientCbGrp_;
         /// ROS service client to activate the camera node to start publishing images.
         rclcpp::Client<deepracer_interfaces_pkg::srv::VideoStateSrv>::SharedPtr videoClient_;
-        rclcpp::callback_group::CallbackGroup::SharedPtr vehicleCtrlModesServiceCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr vehicleCtrlModesServiceCbGrp_;
         rclcpp::Service<deepracer_interfaces_pkg::srv::GetCtrlModesSrv>::SharedPtr getVehicleCtrlModesService_;
-        rclcpp::callback_group::CallbackGroup::SharedPtr vehicleModeServiceCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr vehicleModeServiceCbGrp_;
         rclcpp::Service<deepracer_interfaces_pkg::srv::ActiveStateSrv>::SharedPtr setVehicleModeService_;
-        rclcpp::callback_group::CallbackGroup::SharedPtr activateVehicleServiceCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr activateVehicleServiceCbGrp_;
         rclcpp::Service<deepracer_interfaces_pkg::srv::EnableStateSrv>::SharedPtr activateVehicleService_;
-        rclcpp::callback_group::CallbackGroup::SharedPtr loadModelCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr loadModelCbGrp_;
         rclcpp::Service<deepracer_interfaces_pkg::srv::ModelStateSrv>::SharedPtr loadModelService_;
-        rclcpp::callback_group::CallbackGroup::SharedPtr isModelLoadingCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr isModelLoadingCbGrp_;
         rclcpp::Service<deepracer_interfaces_pkg::srv::GetModelLoadingStatusSrv>::SharedPtr isModelLoadingService_;
-        rclcpp::callback_group::CallbackGroup::SharedPtr vehicleCalibrationCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr vehicleCalibrationCbGrp_;
         rclcpp::Service<deepracer_interfaces_pkg::srv::GetCalibrationSrv>::SharedPtr getCarCalibrationService_;
         rclcpp::Service<deepracer_interfaces_pkg::srv::SetCalibrationSrv>::SharedPtr setCarCalibrationService_;
-        rclcpp::callback_group::CallbackGroup::SharedPtr vehicleLedCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr vehicleLedCbGrp_;
         rclcpp::Service<deepracer_interfaces_pkg::srv::GetLedCtrlSrv>::SharedPtr getCarLedService_;
         rclcpp::Service<deepracer_interfaces_pkg::srv::SetLedCtrlSrv>::SharedPtr setCarLedService_;
-        rclcpp::callback_group::CallbackGroup::SharedPtr autonomousThrottleCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr autonomousThrottleCbGrp_;
         rclcpp::Service<deepracer_interfaces_pkg::srv::NavThrottleSrv>::SharedPtr setAutonomousThrottleService_;
+        CameraMode mode_;
     };
 }
 

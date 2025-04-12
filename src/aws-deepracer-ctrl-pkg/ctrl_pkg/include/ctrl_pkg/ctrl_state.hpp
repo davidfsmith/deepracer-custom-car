@@ -82,28 +82,28 @@ namespace SysCtrl {
         /// ROS publisher object to the publish the servo messages that will handle the actuation.
         rclcpp::Publisher<deepracer_interfaces_pkg::msg::ServoCtrlMsg>::SharedPtr servoPub_;
         /// ROS callback group object to be passed to the servoGPIOClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr servoGPIOClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr servoGPIOClientCbGrp_;
         /// ROS client that sets the GPIO pin, this is required to be set when user
         /// starts servo.
         rclcpp::Client<deepracer_interfaces_pkg::srv::ServoGPIOSrv>::SharedPtr servoGPIOClient_;
         /// ROS callback group object to be passed to the modelOptimizerClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr  modelOptimizerClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr  modelOptimizerClientCbGrp_;
         /// ROS client to the model optimizer.
         rclcpp::Client<deepracer_interfaces_pkg::srv::ModelOptimizeSrv>::SharedPtr modelOptimizerClient_;
         /// ROS callback group object to be passed to the loadModelClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr loadModelClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr loadModelClientCbGrp_;
         /// ROS client to the inference engine model loading server.
         rclcpp::Client<deepracer_interfaces_pkg::srv::LoadModelSrv>::SharedPtr loadModelClient_;
         /// ROS callback group object to be passed to the loadActionSpaceClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr loadActionSpaceClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr loadActionSpaceClientCbGrp_;
         // ROS client to the load action space service.
         rclcpp::Client<deepracer_interfaces_pkg::srv::LoadModelSrv>::SharedPtr loadActionSpaceClient_;
         /// ROS callback group object to be passed to the inferStateClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr inferStateClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr inferStateClientCbGrp_;
         /// ROS client to inference engine.
         rclcpp::Client<deepracer_interfaces_pkg::srv::InferenceStateSrv>::SharedPtr inferStateClient_;
         /// ROS callback group object to be passed to the navigationThrottleClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr navigationThrottleClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr navigationThrottleClientCbGrp_;
         /// ROS client to the navigation throttle control.
         rclcpp::Client<deepracer_interfaces_pkg::srv::NavThrottleSrv>::SharedPtr navigationThrottleClient_;
         /// State variable that tracks whether or not the state is active.
@@ -145,7 +145,7 @@ namespace SysCtrl {
         /// ROS publisher object to the publish the servo messages that will handle the actuation.
         rclcpp::Publisher<deepracer_interfaces_pkg::msg::ServoCtrlMsg>::SharedPtr servoPub_;
         /// ROS callback group object to be passed to the servoGPIOClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr servoGPIOClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr servoGPIOClientCbGrp_;
         /// ROS client that sets the GPIO pin, this is required to be set when user
         /// starts servo.
         rclcpp::Client<deepracer_interfaces_pkg::srv::ServoGPIOSrv>::SharedPtr servoGPIOClient_;
@@ -182,24 +182,24 @@ namespace SysCtrl {
         /// client for calibration.
         rclcpp::Publisher<deepracer_interfaces_pkg::msg::ServoCtrlMsg>::SharedPtr calibrationPub_;
         /// ROS callback group object to be passed to the servoGPIOClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr servoGPIOClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr servoGPIOClientCbGrp_;
         /// ROS client that sets the GPIO pin, this is required to be set when user
         /// starts servo.
         rclcpp::Client<deepracer_interfaces_pkg::srv::ServoGPIOSrv>::SharedPtr servoGPIOClient_;
         /// ROS callback group object to be passed to the servoGetCalClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr servoGetCalClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr servoGetCalClientCbGrp_;
         /// ROS client for setting the calibration.
         rclcpp::Client<deepracer_interfaces_pkg::srv::GetCalibrationSrv>::SharedPtr servoGetCalClient_;
         /// ROS callback group object to be passed to the servoSetCalClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr servoSetCalClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr servoSetCalClientCbGrp_;
         /// ROS client for getting the calibration.
         rclcpp::Client<deepracer_interfaces_pkg::srv::SetCalibrationSrv>::SharedPtr servoSetCalClient_;
         /// ROS callback group object to be passed to the servoGetLedClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr servoGetLedClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr servoGetLedClientCbGrp_;
         /// ROS client for getting the LED PWM values.
         rclcpp::Client<deepracer_interfaces_pkg::srv::GetLedCtrlSrv>::SharedPtr servoGetLedClient_;
         /// ROS callback group object to be passed to the servoSetLedClient_.
-        rclcpp::callback_group::CallbackGroup::SharedPtr servoSetLedClientCbGrp_;
+        rclcpp::CallbackGroup::SharedPtr servoSetLedClientCbGrp_;
         /// ROS client for setting the LED PWM values.
         rclcpp::Client<deepracer_interfaces_pkg::srv::SetLedCtrlSrv>::SharedPtr servoSetLedClient_;
         /// State variable that tracks whether or not the state is active.

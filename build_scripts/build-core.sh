@@ -49,6 +49,8 @@ if [ "$CACHE" != "true" ]; then
     # Remove previous builds (gives clean build)
     rm -rf ../install ../build ../log
 
+    cd external
+
     # Undo checkouts / patches
     for pkg_dir in $(find . -mindepth 1 -maxdepth 1 -type d); do
         cd $pkg_dir
@@ -58,7 +60,6 @@ if [ "$CACHE" != "true" ]; then
         cd ..
     done
 
-    cd external
     cp .rosinstall-core .rosinstall
 
     if [ $ROS_DISTRO == "foxy" ]; then
@@ -77,51 +78,7 @@ if [ "$CACHE" != "true" ]; then
         rosws update
     fi
     cd ..
-
-
-    #######
-    #
-    # START - Pull request specific changes
-    #
-
-    # Update packages for PR's
-    # https://github.com/aws-deepracer/aws-deepracer-inference-pkg/pull/4
-    cd aws-deepracer-inference-pkg
-    git fetch origin pull/5/head:tflite
-    git checkout tflite
-    cd ..
-
-    # https://github.com/aws-deepracer/aws-deepracer-camera-pkg/pull/5
-    cd aws-deepracer-camera-pkg
-    git fetch origin pull/5/head:compressed-image
-    git checkout compressed-image
-    cd ..
-
-    # https://github.com/aws-deepracer/aws-deepracer-interfaces-pkg/pull/4
-    cd aws-deepracer-interfaces-pkg
-    git fetch origin pull/4/head:compressed-image
-    git checkout compressed-image
-    cd ..
-
-    # https://github.com/aws-deepracer/aws-deepracer-sensor-fusion-pkg/pull/4
-    cd aws-deepracer-sensor-fusion-pkg
-    git fetch origin pull/4/head:compressed-image
-    git checkout compressed-image
-    cd ..
-
-    # https://github.com/aws-deepracer/aws-deepracer-model-optimizer-pkg/pull/2
-    cd aws-deepracer-model-optimizer-pkg
-    git fetch origin pull/3/head:tflite
-    git checkout tflite
-    cd ..
-
-    # https://github.com/aws-deepracer/aws-deepracer-i2c-pkg/pull/3
-    cd aws-deepracer-i2c-pkg
-    git fetch origin pull/3/head:dummy
-    git checkout dummy
-    cd ..
-
-
+    
 
     # Resolve the dependencies
     rosdep install -i --from-path . --ignore-src --rosdistro $ROS_DISTRO -y
