@@ -64,11 +64,11 @@ CATKIN_IGNORE
 dist/
 .venv/
 pkg-build/
-src/deps/*
-!src/deps/.rosinstall-core
-!src/deps/.rosinstall-foxy
-!src/deps/.rosinstall-humble
-!src/deps/.rosinstall-jazzy
+src/external/*
+!src/external/.rosinstall-core
+!src/external/.rosinstall-foxy
+!src/external/.rosinstall-humble
+!src/external/.rosinstall-jazzy
 
 # Test module
 test/install/
