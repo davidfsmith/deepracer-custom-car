@@ -222,15 +222,22 @@ class DeviceInfoNode(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
-    device_info_node = DeviceInfoNode()
-    rclpy.spin(device_info_node)
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    device_info_node.destroy_node()
-    rclpy.shutdown()
 
+    try:
+        rclpy.init(args=args)
+        device_info_node = DeviceInfoNode()
+        rclpy.spin(device_info_node)
+        # Destroy the node explicitly
+        # (optional - otherwise it will be done automatically
+        # when the garbage collector destroys the node object)
+        device_info_node.destroy_node()
+
+    except KeyboardInterrupt:
+        pass
+
+    finally:
+        if rclpy.ok():
+            rclpy.shutdown()
 
 if __name__ == "__main__":
     main()
