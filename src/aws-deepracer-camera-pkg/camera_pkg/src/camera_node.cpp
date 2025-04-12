@@ -17,7 +17,11 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/compressed_image.hpp"
-#include "cv_bridge/cv_bridge.h"
+#if __has_include(<cv_bridge/cv_bridge.hpp>)
+#include <cv_bridge/cv_bridge.hpp>
+#elif __has_include(<cv_bridge/cv_bridge.h>)
+#include <cv_bridge/cv_bridge.h>
+#endif
 #include "deepracer_interfaces_pkg/srv/video_state_srv.hpp"
 #include "deepracer_interfaces_pkg/msg/camera_msg.hpp"
 #include "opencv2/opencv.hpp"
@@ -171,6 +175,7 @@ namespace MediaEng {
                 sensor_msgs::msg::Image displayMsg;
                 std_msgs::msg::Header header;
                 bool firstCamera = true;
+                bool capturedFrame = false;
                 header.frame_id = std::to_string(imageFrameId_++);
                 for (auto& cap :  videoCaptureList_) {
                     if (!cap.isOpened()) {
@@ -179,8 +184,11 @@ namespace MediaEng {
                     cv::Mat frame;
                     cap >> frame;
                     header.stamp = this->get_clock()->now();
-                    if (frame.empty()) {
-                        RCLCPP_ERROR(this->get_logger(), "No frame returned. Check if camera is plugged in correctly.");
+                    if (!frame.empty()) {
+                        capturedFrame = true;
+                    } else {
+                        RCLCPP_ERROR_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "No frame returned. Check if camera is plugged in correctly.");
+                        rclcpp::sleep_for(std::chrono::milliseconds(1000 / std::max(1, framesPerSecond_.load())));
                         continue;
                     }
                     try {
@@ -194,20 +202,21 @@ namespace MediaEng {
                         cameraMsg.images.push_back(*(cv_bridge::CvImage(header, "bgr8", frame).toCompressedImageMsg().get()));
                     }
                     catch (cv_bridge::Exception& e) {
-                        RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+                        RCLCPP_ERROR_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "cv_bridge exception: %s", e.what());
                         produceFrames_ = false;
                         return;
                     }
                 }
                 try {
-                    if (enableDisplayPub_)
-                        displayPub_.publish(displayMsg);
-                    videoPub_->publish(cameraMsg);
+                    if (capturedFrame) {
+                        if (enableDisplayPub_)
+                            displayPub_.publish(displayMsg);
+                        videoPub_->publish(cameraMsg);
+                    }
                 }
                     catch (const std::exception &ex) {
-                    RCLCPP_ERROR(this->get_logger(), "Publishing camera images to topics failed %s", ex.what());
+                    RCLCPP_ERROR_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "Publishing camera images to topics failed %s", ex.what());
                 }
-                firstCamera = true;
             }
         }
 
