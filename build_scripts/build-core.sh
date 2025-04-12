@@ -58,6 +58,7 @@ if [ "$CACHE" != "true" ]; then
         cd ..
     done
 
+    cd external
     cp .rosinstall-core .rosinstall
 
     if [ $ROS_DISTRO == "foxy" ]; then
@@ -75,6 +76,8 @@ if [ "$CACHE" != "true" ]; then
     else
         rosws update
     fi
+    cd ..
+
 
     #######
     #
