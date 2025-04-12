@@ -329,15 +329,22 @@ class USBMonitorNode(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
-    with USBMonitorNode() as usb_monitor_node:
-        executor = MultiThreadedExecutor()
-        rclpy.spin(usb_monitor_node, executor)
-        # Destroy the node explicitly
-        # (optional - otherwise it will be done automatically
-        # when the garbage collector destroys the node object)
-    usb_monitor_node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.init(args=args)
+        with USBMonitorNode() as usb_monitor_node:
+            executor = MultiThreadedExecutor()
+            rclpy.spin(usb_monitor_node, executor)
+            # Destroy the node explicitly
+            # (optional - otherwise it will be done automatically
+            # when the garbage collector destroys the node object)
+        usb_monitor_node.destroy_node()
+
+    except KeyboardInterrupt:
+        pass
+
+    finally:
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":
