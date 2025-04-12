@@ -88,62 +88,6 @@ if [ "$CACHE" != "true" ]; then
     #
     #######
 
-    #######
-    #
-    # START - Common patches
-    #
-    #######
-
-    # Apply common improvement patches
-    cd aws-deepracer-ctrl-pkg
-    git apply $DIR/build_scripts/patches/aws-deepracer-ctrl-pkg.patch
-    cd ..
-
-    cd aws-deepracer-camera-pkg
-    git apply $DIR/build_scripts/patches/aws-deepracer-camera-pkg.patch
-    cd ..
-
-    cd aws-deepracer-device-info-pkg/
-    git apply $DIR/build_scripts/patches/aws-deepracer-device-info-pkg.patch
-    cd ..
-
-    cd aws-deepracer-inference-pkg/
-    git apply $DIR/build_scripts/patches/aws-deepracer-inference-pkg.patch
-    cd ..
-
-    cd aws-deepracer-navigation-pkg/
-    git apply $DIR/build_scripts/patches/aws-deepracer-navigation-pkg.patch
-    cd ..
-
-    cd aws-deepracer-usb-monitor-pkg/
-    git apply $DIR/build_scripts/patches/aws-deepracer-usb-monitor-pkg.patch
-    cd ..
-
-    cd aws-deepracer-status-led-pkg/
-    git apply $DIR/build_scripts/patches/aws-deepracer-status-led-pkg.patch
-    cd ..
-
-    cd aws-deepracer-servo-pkg/
-    git apply $DIR/build_scripts/patches/aws-deepracer-servo-pkg.patch
-    cd ..
-
-    cd aws-deepracer-sensor-fusion-pkg/
-    git apply $DIR/build_scripts/patches/aws-deepracer-sensor-fusion-pkg.patch
-    cd ..
-
-    cd aws-deepracer-systems-pkg/
-    git apply $DIR/build_scripts/patches/aws-deepracer-systems-pkg.patch
-    cd ..
-
-    cd aws-deepracer-webserver-pkg/
-    git apply $DIR/build_scripts/patches/aws-deepracer-webserver-pkg.patch
-    cd ..
-    #######
-    #
-    # END - Common patches
-    #
-    #######
-
     if [ "$ROS_DISTRO" == "humble" ] || [ "$ROS_DISTRO" == "jazzy" ]; then
 
         echo "Applying patches for Raspberry Pi / ROS 2 Humble & Jazzy"
@@ -178,9 +122,6 @@ if [ "$CACHE" != "true" ]; then
         #
         #######
     fi
-
-    # Update deepracer_launcher.py (fix an issue in the file)
-    cp $DIR/build_scripts/files/common/deepracer_launcher.py ./aws-deepracer-launcher/deepracer_launcher/launch/deepracer_launcher.py
 
 fi
 
