@@ -1,7 +1,7 @@
-diff --git a/deepracer_systems_pkg/deepracer_systems_pkg/network_monitor_module/network_utils.py b/deepracer_systems_pkg/deepracer_systems_pkg/network_monitor_module/network_utils.py
+diff --git a/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/network_monitor_module/network_utils.py b/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/network_monitor_module/network_utils.py
 index d1a6ff0..d69acbd 100644
---- a/deepracer_systems_pkg/deepracer_systems_pkg/network_monitor_module/network_utils.py
-+++ b/deepracer_systems_pkg/deepracer_systems_pkg/network_monitor_module/network_utils.py
+--- a/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/network_monitor_module/network_utils.py
++++ b/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/network_monitor_module/network_utils.py
 @@ -57,7 +57,7 @@ def get_chassis_serial():
      """
      serial = file_system_utils.read_line(network_config.CHASSIS_SERIAL).strip()
@@ -11,10 +11,10 @@ index d1a6ff0..d69acbd 100644
  
      serial = serial.lower()
      serial = serial.replace(" ", "-")
-diff --git a/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_config.py b/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_config.py
+diff --git a/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_config.py b/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_config.py
 index dd6670d..68f884a 100644
---- a/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_config.py
-+++ b/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_config.py
+--- a/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_config.py
++++ b/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_config.py
 @@ -25,7 +25,7 @@ GET_OTG_LINK_STATE_SERVICE_NAME = "get_otg_link_state"
  # OTG settings.
  
@@ -26,10 +26,10 @@ index dd6670d..68f884a 100644
 -OTG_LINK_STATE = "link_state"
 +OTG_STATE_DIRECTORY = os.path.join(os.sep, "sys", "class", "net", "usb0")
 +OTG_LINK_STATE = "operstate"
-diff --git a/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_control_node.py b/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_control_node.py
+diff --git a/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_control_node.py b/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_control_node.py
 index 3235515..444a4a4 100644
---- a/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_control_node.py
-+++ b/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_control_node.py
+--- a/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_control_node.py
++++ b/src/aws-deepracer-systems-pkg/deepracer_systems_pkg/deepracer_systems_pkg/otg_module/otg_control_node.py
 @@ -124,16 +124,19 @@ class OTGControlNode(Node):
      def __exit__(self, exc_type, exc_value, traceback):
          """Called when the object is destroyed.

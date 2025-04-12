@@ -83,6 +83,8 @@ if [ "$CACHE" != "true" ]; then
     # Resolve the dependencies
     rosdep install -i --from-path . --ignore-src --rosdistro $ROS_DISTRO -y
 
+    cd ..
+
     #
     # END - Pull request specific changes
     #
@@ -97,25 +99,11 @@ if [ "$CACHE" != "true" ]; then
         # START - PI specific patches
         #
 
-        cd aws-deepracer-i2c-pkg/
         git apply $DIR/build_scripts/patches/aws-deepracer-i2c-pkg.rpi.patch
-        cd ..
-
-        cd aws-deepracer-servo-pkg/
         git apply $DIR/build_scripts/patches/aws-deepracer-servo-pkg.rpi.patch
-        cd ..
-
-        cd aws-deepracer-systems-pkg/
         git apply $DIR/build_scripts/patches/aws-deepracer-systems-pkg.rpi.patch
-        cd ..
-
-        cd aws-deepracer-status-led-pkg/
         git apply $DIR/build_scripts/patches/aws-deepracer-status-led-pkg.rpi.patch
-        cd ..
-
-        cd aws-deepracer-model-optimizer-pkg/
         git apply $DIR/build_scripts/patches/aws-deepracer-model-optimizer-pkg.rpi.patch
-        cd ..
 
         #
         # END - Patches
@@ -124,8 +112,6 @@ if [ "$CACHE" != "true" ]; then
     fi
 
 fi
-
-cd ..
 
 # Build the core
 export PYTHONWARNINGS=ignore:::setuptools.command.install

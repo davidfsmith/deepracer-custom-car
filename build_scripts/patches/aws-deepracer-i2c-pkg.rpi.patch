@@ -1,7 +1,7 @@
-diff --git a/i2c_pkg/src/battery_node.cpp b/i2c_pkg/src/battery_node.cpp
+diff --git a/src/aws-deepracer-i2c-pkg/i2c_pkg/src/battery_node.cpp b/src/aws-deepracer-i2c-pkg/i2c_pkg/src/battery_node.cpp
 index 328c4ca..da7c27c 100644
---- a/i2c_pkg/src/battery_node.cpp
-+++ b/i2c_pkg/src/battery_node.cpp
+--- a/src/aws-deepracer-i2c-pkg/i2c_pkg/src/battery_node.cpp
++++ b/src/aws-deepracer-i2c-pkg/i2c_pkg/src/battery_node.cpp
 @@ -58,7 +58,7 @@ namespace BoardChips {
          /// Rewriting the command to dynamically find the bus channel number
          // "ls -al /sys/class/i2c-dev/ | grep "0000:00:17.3" | awk '{ print $9}' | awk -F "-" '{ print $2}'"

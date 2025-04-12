@@ -1,7 +1,7 @@
-diff --git a/status_led_pkg/status_led_pkg/constants.py b/status_led_pkg/status_led_pkg/constants.py
+diff --git a/src/aws-deepracer-status-led-pkg/status_led_pkg/status_led_pkg/constants.py b/src/aws-deepracer-status-led-pkg/status_led_pkg/status_led_pkg/constants.py
 index 9c3676a..be97c1e 100644
---- a/status_led_pkg/status_led_pkg/constants.py
-+++ b/status_led_pkg/status_led_pkg/constants.py
+--- a/src/aws-deepracer-status-led-pkg/status_led_pkg/status_led_pkg/constants.py
++++ b/src/aws-deepracer-status-led-pkg/status_led_pkg/status_led_pkg/constants.py
 @@ -27,9 +27,9 @@ DEFAULT_LED_INDEX = 0
  # Status light LED GPIO port matrix.
  # Cols: led indices; rows: r, g, b channel ports.
