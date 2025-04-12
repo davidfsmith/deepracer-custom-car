@@ -181,6 +181,15 @@ class ModelLoaderNode(Node):
 
         self.get_logger().info("Model Loader node successfully created")
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Called when the object is destroyed.
+        """
+        self.destroy_timer(self.timer)
+        self.scheduler.schedule_exit()
+
     def timer_callback(self):
         """Heartbeat function to keep the node alive.
         """
@@ -722,15 +731,20 @@ class ModelLoaderNode(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
-    model_loader_node = ModelLoaderNode()
-    executor = MultiThreadedExecutor()
-    rclpy.spin(model_loader_node, executor)
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    model_loader_node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.init(args=args)
+        with ModelLoaderNode() as model_loader_node:
+            executor = MultiThreadedExecutor()
+            rclpy.spin(model_loader_node, executor)
+            model_loader_node.destroy_node()
+
+    except KeyboardInterrupt:
+        pass
+
+    finally:
+        if rclpy.ok():
+            rclpy.shutdown()
+
 
 
 if __name__ == "__main__":

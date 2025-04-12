@@ -50,7 +50,8 @@ setup(
             'model_loader_node = deepracer_systems_pkg.model_loader_module.model_loader_node:main',
             'otg_control_node = deepracer_systems_pkg.otg_module.otg_control_node:main',
             'network_monitor_node = deepracer_systems_pkg.network_monitor_module.network_monitor_node:main',
-            'deepracer_systems_scripts_node = deepracer_systems_pkg.deepracer_systems_scripts_module.deepracer_systems_scripts_node:main'
+            'deepracer_systems_scripts_node = deepracer_systems_pkg.deepracer_systems_scripts_module.deepracer_systems_scripts_node:main',
+            'system_nodes = deepracer_systems_pkg.system_nodes:main'
         ],
     },
 )

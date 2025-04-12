@@ -23,31 +23,6 @@ def generate_launch_description():
         Node(
             package='deepracer_systems_pkg',
             namespace='deepracer_systems_pkg',
-            executable='software_update_node',
-            name='software_update_node'
-        ),
-        Node(
-            package='deepracer_systems_pkg',
-            namespace='deepracer_systems_pkg',
-            executable='model_loader_node',
-            name='model_loader_node'
-        ),
-        Node(
-            package='deepracer_systems_pkg',
-            namespace='deepracer_systems_pkg',
-            executable='otg_control_node',
-            name='otg_control_node'
-        ),
-        Node(
-            package='deepracer_systems_pkg',
-            namespace='deepracer_systems_pkg',
-            executable='network_monitor_node',
-            name='network_monitor_node'
-        ),
-        Node(
-            package='deepracer_systems_pkg',
-            namespace='deepracer_systems_pkg',
-            executable='deepracer_systems_scripts_node',
-            name='deepracer_systems_scripts_node'
+            executable='systems_startup'
         )
     ])

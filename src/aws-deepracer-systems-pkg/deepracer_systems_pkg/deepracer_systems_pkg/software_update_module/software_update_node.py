@@ -245,6 +245,18 @@ class SoftwareUpdateNode(Node):
 
         self.get_logger().info("Software Update node successfully created")
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Called when the object is destroyed.
+        """
+        self.destroy_timer(self.timer)
+        self.scheduler.schedule_exit()
+
+        if software_update_config.ENABLE_PERIODIC_SOFTWARE_UPDATE:
+            self.destroy_timer(self.update_check_timer)
+
     def timer_callback(self):
         """Heartbeat function to keep the node alive.
         """
@@ -761,15 +773,19 @@ class SoftwareUpdateNode(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
-    software_update_node = SoftwareUpdateNode()
-    executor = MultiThreadedExecutor()
-    rclpy.spin(software_update_node, executor)
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    software_update_node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.init(args=args)
+        with SoftwareUpdateNode() as software_update_node:
+            executor = MultiThreadedExecutor()
+            rclpy.spin(software_update_node, executor)
+            software_update_node.destroy_node()
+
+    except KeyboardInterrupt:
+        pass
+
+    finally:
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

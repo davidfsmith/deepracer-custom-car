@@ -56,7 +56,7 @@ WIFI_CONFIG_DEFAULTS = {
 DEVICE_STATUS_NAME = "device-status.txt"
 
 # Set to True to set hostname to the chassis serial number.
-SET_HOSTNAME_TO_CHASSIS_SERIAL_NUMBER = True
+SET_HOSTNAME_TO_CHASSIS_SERIAL_NUMBER = False
 CHASSIS_SERIAL = os.path.join(os.sep, "sys", "class", "dmi", "id", "chassis_serial")
 
 SCHEDULE_CONFIG_UPDATE_CB = "schedule_config_update"

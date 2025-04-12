@@ -200,6 +200,17 @@ class NetworkMonitorNode(Node):
         self.led_solid_request.hold = 0.0
         self.led_solid_service.call_async(self.led_solid_request)
 
+        self.destroy_timer(self.timer)
+        self.destroy_timer(self.status_publisher_timer)
+
+        if network_config.ENABLE_NETWORK_LED_UPDATE:
+            self.destroy_timer(self.update_status_LED_timer)
+
+        if network_config.ENABLE_REPORT_STATE_UPDATE:
+            self.destroy_timer(self.report_state_timer)
+
+        self.scheduler.schedule_exit()
+
     def usb_file_system_notification_cb(self, notification_msg):
         """Callback for messages triggered whenever usb_monitor_node identifies a file/folder
            thats being tracked.
@@ -492,15 +503,20 @@ class NetworkMonitorNode(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
-    with NetworkMonitorNode() as network_monitor_node:
-        executor = MultiThreadedExecutor()
-        rclpy.spin(network_monitor_node, executor)
-        # Destroy the node explicitly
-        # (optional - otherwise it will be done automatically
-        # when the garbage collector destroys the node object)
-        network_monitor_node.destroy_node()
-    rclpy.shutdown()
+
+    try:
+        rclpy.init(args=args)
+        with NetworkMonitorNode() as network_monitor_node:
+            executor = MultiThreadedExecutor()
+            rclpy.spin(network_monitor_node, executor)
+            network_monitor_node.destroy_node()
+
+    except KeyboardInterrupt:
+        pass
+
+    finally:
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

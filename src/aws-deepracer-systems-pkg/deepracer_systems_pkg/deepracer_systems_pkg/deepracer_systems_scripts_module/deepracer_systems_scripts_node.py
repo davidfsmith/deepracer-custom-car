@@ -46,6 +46,16 @@ class DeepracerSystemsScriptsNode(Node):
 
         self.uvc_logs_suppressed = False
 
+    def __enter__(self):
+        """Called when the node object is created using the 'with' statement.
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Called when the object is destroyed.
+        """
+        pass
+
     def run_dependencies(self):
         """Timer callback which runs the dependency scripts if not run previously.
         """
@@ -121,15 +131,23 @@ class DeepracerSystemsScriptsNode(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
-    deepracer_systems_script_node = DeepracerSystemsScriptsNode()
-    executor = MultiThreadedExecutor()
-    rclpy.spin(deepracer_systems_script_node, executor)
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    deepracer_systems_script_node.destroy_node()
-    rclpy.shutdown()
+
+    try:
+        rclpy.init(args=args)
+        deepracer_systems_script_node = DeepracerSystemsScriptsNode()
+        executor = MultiThreadedExecutor()
+        rclpy.spin(deepracer_systems_script_node, executor)
+        # Destroy the node explicitly
+        # (optional - otherwise it will be done automatically
+        # when the garbage collector destroys the node object)
+        deepracer_systems_script_node.destroy_node()
+
+    except KeyboardInterrupt:
+        pass
+
+    finally:
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":
