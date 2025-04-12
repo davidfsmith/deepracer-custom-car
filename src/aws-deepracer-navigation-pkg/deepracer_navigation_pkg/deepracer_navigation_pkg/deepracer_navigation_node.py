@@ -348,17 +348,23 @@ class DRNavigationNode(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
-    dr_navigation_node = DRNavigationNode()
-    executor = MultiThreadedExecutor()
-    rclpy.spin(dr_navigation_node, executor)
-    
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    dr_navigation_node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.init(args=args)
+        dr_navigation_node = DRNavigationNode()
+        executor = MultiThreadedExecutor()
+        rclpy.spin(dr_navigation_node, executor)
 
+        # Destroy the node explicitly
+        # (optional - otherwise it will be done automatically
+        # when the garbage collector destroys the node object)
+        dr_navigation_node.destroy_node()
+
+    except KeyboardInterrupt:
+        pass
+    
+    finally:
+        if rclpy.ok():
+            rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
