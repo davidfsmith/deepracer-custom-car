@@ -50,7 +50,7 @@ def is_ssh_enabled():
         # Check SSH status
         if utility.execute("/bin/systemctl --no-pager status ssh", shlex_split=True)[1].find("active (running)") > -1:
             # Check UFW status
-            stdout = utility.execute("/usr/sbin/ufw status", shlex_split=True)[1]
+            stdout = utility.execute("/usr/sbin/ufw status verbose", shlex_split=True)[1]
             if re.search("22.*ALLOW", stdout):
                 return jsonify(success=True,
                                isSshEnabled=True,
@@ -80,9 +80,9 @@ def enable_ssh():
     webserver_node.get_logger().info("Enabling SSH")
     try:
         # Start SSH
-        utility.execute("/usr/sbin/service ssh start", shlex_split=True)
+        utility.execute("/bin/systemctl enable ssh && /bin/systemctl start ssh", shlex_split=True)
         # Allow SSH
-        utility.execute("/usr/sbin/ufw allow ssh", shlex_split=True)
+        utility.execute("/usr/sbin/ufw allow OpenSSH", shlex_split=True)
         return jsonify(success=True, isSshEnabled=True, reason="Ssh enabled.")
     except Exception as ex:
         webserver_node.get_logger().error(f"Failed to enable ssh: {ex}")
@@ -101,7 +101,7 @@ def disable_ssh():
     webserver_node.get_logger().info("Disabling SSH")
     try:
         # Stop SSH
-        utility.execute("/usr/sbin/service ssh stop", shlex_split=True)
+        utility.execute("/bin/systemctl disable ssh && /bin/systemctl stop ssh", shlex_split=True)
         return jsonify(success=True, isSshEnabled=False, reason="Ssh disabled.")
     except Exception as ex:
         webserver_node.get_logger().error(f"Failed to disable ssh: {ex}")

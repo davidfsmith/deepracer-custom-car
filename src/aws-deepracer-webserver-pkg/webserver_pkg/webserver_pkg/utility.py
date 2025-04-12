@@ -45,18 +45,18 @@ def call_service_sync(cli, req, timeout=10, sleep_time=0.01):
     """
     webserver_node = webserver_publisher_node.get_webserver_node()
     if cli.service_is_ready():
-        webserver_node.get_logger().info(f"Service call initiated: {cli.srv_name}")
+        webserver_node.get_logger().debug(f"Service call initiated: {cli.srv_name}")
         future = cli.call_async(req)
         sequence = -1
         for seq, req_future in cli._pending_requests.items():
             if req_future == future:
                 sequence = seq
                 break
-        webserver_node.get_logger().info(f"New request: {sequence} {cli.srv_name}")
+        webserver_node.get_logger().debug(f"New request: {sequence} {cli.srv_name}")
         elapsed_time = 0
         while not future.done():
             if elapsed_time == int(elapsed_time):
-                webserver_node.get_logger().info(f"Service call not finished: {sequence} {cli.srv_name}")
+                webserver_node.get_logger().debug(f"Service call not finished: {sequence} {cli.srv_name}")
             time.sleep(sleep_time)
             elapsed_time += sleep_time
             if elapsed_time >= timeout:
@@ -66,13 +66,13 @@ def call_service_sync(cli, req, timeout=10, sleep_time=0.01):
                 if future.cancelled():
                     webserver_node.get_logger().error(f"Service was cancelled: {sequence} {cli.srv_name}")
                 return None
-        webserver_node.get_logger().info(f"Service call finished: {sequence} {cli.srv_name}")
+        webserver_node.get_logger().debug(f"Service call finished: {sequence} {cli.srv_name}")
         if future.exception() is not None:
             webserver_node.get_logger().error(f"Error while calling service: {sequence} - "
                                               f"{cli.srv_name} - {future.exception()}")
         return future.result()
     else:
-        webserver_node.get_logger().info(f"Service is not ready: {cli.srv_name}")
+        webserver_node.get_logger().warn(f"Service is not ready: {cli.srv_name}")
         return None
 
 
@@ -91,14 +91,14 @@ def execute(cmd, input_str=None, shell=False, shlex_split=False):
         tuple: A tuple of return code and the output of the command.
     """
     webserver_node = webserver_publisher_node.get_webserver_node()
-    webserver_node.get_logger().info(f"Command executing: {cmd}")
+    webserver_node.get_logger().debug(f"Command executing: {cmd}")
     if shlex_split:
         cmd = shlex.split(cmd)
     proc = Popen(cmd, stdout=PIPE, stdin=PIPE, stderr=STDOUT,
                  universal_newlines=True, shell=shell)
     stdout = proc.communicate(input=input_str)[0]
 
-    webserver_node.get_logger().info(f"{cmd} : execute output: {stdout}")
+    webserver_node.get_logger().debug(f"{cmd} : execute output: {stdout}")
 
     return proc.returncode, stdout
 

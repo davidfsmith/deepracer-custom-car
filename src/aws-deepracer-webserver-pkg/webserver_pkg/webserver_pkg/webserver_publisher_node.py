@@ -354,16 +354,23 @@ def get_webserver_node():
 
 
 def main(args=None):
-    global webserver_node
-    rclpy.init(args=args)
-    webserver_node = WebServerNode()
-    executor = MultiThreadedExecutor()
-    rclpy.spin(webserver_node, executor)
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    webserver_node.destroy_node()
-    rclpy.shutdown()
+    try:
+        global webserver_node
+        rclpy.init(args=args)
+        webserver_node = WebServerNode()
+        executor = MultiThreadedExecutor()
+        rclpy.spin(webserver_node, executor)
+        # Destroy the node explicitly
+        # (optional - otherwise it will be done automatically
+        # when the garbage collector destroys the node object)
+        webserver_node.destroy_node()
+
+    except KeyboardInterrupt:
+        pass
+
+    finally:
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

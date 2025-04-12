@@ -90,7 +90,7 @@ def get_battery_level():
                 "battery_level": battery_level_res.level,
                 "success": True
             }
-            webserver_node.get_logger().info(f"Battery Level: {data['battery_level']}")
+            webserver_node.get_logger().debug(f"Battery Level: {data['battery_level']}")
             return jsonify(data)
         else:
             return jsonify(success=False, reason="Error")
@@ -140,3 +140,29 @@ def get_sensor_status():
                                          f"Stereo status: {data['stereo_status']}, "
                                          f"Lidar status: {data['lidar_status']}")
         return jsonify(data)
+
+def get_registered_apis():
+    """Helper function that collects all registered API routes from the Flask application.
+
+    Returns:
+        list: List of registered API endpoints
+    """
+    from webserver_pkg.webserver import app
+    api_routes = []
+    for rule in app.url_map.iter_rules():
+        # Only include API routes, excluding static files
+        if "api" in rule.rule and "static" not in rule.rule:
+            api_routes.append(rule.rule)
+    return sorted(api_routes)
+
+@DEVICE_INFO_API_BLUEPRINT.route("/api/supported_apis", methods=["GET"])
+def get_supported_apis():
+    """API to get a list of all supported API endpoints.
+
+    Returns:
+        dict: JSON object containing success status and list of supported APIs.
+    """
+    return jsonify({
+        "success": True,
+        "apis_supported": get_registered_apis()
+    })

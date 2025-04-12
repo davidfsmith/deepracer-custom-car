@@ -24,6 +24,7 @@ the servo/motor.
 """
 
 import math
+import subprocess
 from flask import (Blueprint,
                    jsonify,
                    request)
@@ -312,3 +313,40 @@ def control_modes_available():
     except Exception as ex:
         webserver_node.get_logger().error(f"Unable to reach get ctrl modes service: {ex}")
         return jsonify(success=False, reason="Error")
+
+@VEHICLE_CONTROL_BLUEPRINT.route("/api/emergency_stop", methods=["POST"])
+def api_emergency_stop():
+    """API that performs an emergency stop by optionally running USB resets and restarting the deepracer-core service.
+
+    Returns:
+        dict: Execution status and reason if the API call failed.
+    """
+    try:
+        usb_retcode = 0
+        # Only run USB reset if explicitly requested
+        if request.json.get("usb_reset", False):
+            usb_reset_cmd = """
+            i=0
+            while [ $i -ne 20 ]
+            do
+                usbreset 001/00$i
+                i=$(($i+1))
+            done
+            """
+            usb_retcode = subprocess.call(['bash', '-c', usb_reset_cmd])
+
+        # Restart deepracer service
+        service_retcode = subprocess.call(['systemctl', 'restart', 'deepracer-core'])
+
+        if usb_retcode == 0 and service_retcode == 0:
+            return jsonify({"success": True})
+        else:
+            return jsonify({
+                "success": False,
+                "reason": f"Failed with return codes: usb_reset={usb_retcode}, service={service_retcode}"
+            })
+    except Exception as ex:
+        return jsonify({
+            "success": False,
+            "reason": f"Failed to execute emergency stop: {str(ex)}"
+        })

@@ -23,6 +23,7 @@ This is the main module used to create the flask application object. All the blu
 are imported and registered with the application object.
 """
 
+import logging
 import os
 from flask_cors import CORS
 from flask import Flask
@@ -42,6 +43,7 @@ from webserver_pkg.wifi_settings import WIFI_SETTINGS_BLUEPRINT
 template_dir = os.path.abspath('/opt/aws/deepracer/lib/device_console/templates')
 # Create the Flask application object.
 app = Flask(__name__, template_folder=template_dir)
+logging.getLogger('werkzeug').disabled = True
 CORS(app)
 csrf = CSRFProtect()
 # Initialize the application with CSRF and register all the API blueprints.
@@ -58,7 +60,7 @@ app.register_blueprint(DEVICE_INFO_API_BLUEPRINT)
 app.register_blueprint(MODELS_BLUEPRINT)
 
 app.config.update(
-    DEBUG=True,
+    DEBUG=False,
     SECRET_KEY='secret_',
     SESSION_COOKIE_SECURE=True,
     REMEMBER_COOKIE_SECURE=True)

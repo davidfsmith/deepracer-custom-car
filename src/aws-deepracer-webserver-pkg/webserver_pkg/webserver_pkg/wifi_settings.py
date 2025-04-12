@@ -50,7 +50,7 @@ def check_usb_connection():
     except Exception as arg:
         webserver_node.get_logger().info(f"USB connection check exception: {arg}")
 
-    webserver_node.get_logger().info(f"Check OTG Link State: {is_usb_connected}")
+    webserver_node.get_logger().debug(f"Check OTG Link State: {is_usb_connected}")
     return {"success": True, "is_usb_connected": is_usb_connected}
 
 
