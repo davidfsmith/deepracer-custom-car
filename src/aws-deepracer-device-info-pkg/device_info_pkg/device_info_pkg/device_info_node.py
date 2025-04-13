@@ -106,12 +106,13 @@ class DeviceInfoNode(Node):
             hw_version = self.get_hardware_version()
             sw_version = self.get_software_version()
             os_version = self.get_os_version()
-            ros_distribution = self.get_ros_distribution()  # Add this line
+            ros_distribution = self.get_ros_distribution()
+            cpu_model = self.get_cpu_model()
             res.hardware_version = hw_version if hw_version else "--"
             res.software_version = sw_version if sw_version else "--"
             res.os_version = os_version if os_version else "--"
-            res.cpu_model = self.cpu_model if self.cpu_model else "--"
-            res.ros_distribution = ros_distribution if ros_distribution else "--"  # Add this line
+            res.cpu_model = cpu_model if cpu_model else "--"
+            res.ros_distribution = ros_distribution if ros_distribution else "--"
             res.error = 0
         except Exception:
             res.error = 1
@@ -243,7 +244,7 @@ class DeviceInfoNode(Node):
                                     universal_newlines=True)
             stdout = str(proc.communicate()[0]).strip()
             self.os_version = stdout
-            self.get_logger().info(f"Loading OS information: {stdout}")
+            self.get_logger().info(f"Loading OS information: {self.os_version}")
         except Exception as ex:
             self.get_logger().error(f"Failed to execute os version cmd: {cmd} err:{ex}")
 
@@ -258,7 +259,7 @@ class DeviceInfoNode(Node):
         if not self.os_version:
             self.load_os_version()
         self.get_logger().info(f"OS: {self.os_version}")
-
+        return self.os_version
 
     def load_cpu_model(self):
         """Function to load the CPU Model name.
@@ -276,7 +277,7 @@ class DeviceInfoNode(Node):
         except Exception as ex:
             self.get_logger().error(f"Failed to execute CPU model version cmd: {cmd} err:{ex}")
 
-    def get_cpu_version(self):
+    def get_cpu_model(self):
         """Getter method to return the CPU model if loaded, else load it
            and return.
 
@@ -287,6 +288,7 @@ class DeviceInfoNode(Node):
         if not self.cpu_model:
             self.load_cpu_model()
         self.get_logger().info(f"CPU: {self.cpu_model}")        
+        return self.cpu_model
 
     def load_ros_distribution(self):
         """Function to load the ROS distribution name.
