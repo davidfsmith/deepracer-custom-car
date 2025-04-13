@@ -1,9 +1,5 @@
 {
     "cmake.configureOnOpen": false,
-    "files.exclude": {
-        "**/build": true,
-        "**/pkg-build": true,
-    },
     "search.exclude": {
       "**/build": true,
       "**/pkg-build": true
@@ -13,8 +9,7 @@
     ],
     "python.analysis.autoImportCompletions": true,
     "python.analysis.exclude": [
-        "**/install",
         "**/build",
-        "**/pkg-build",
+        "**/pkg-build"
     ],
 }
