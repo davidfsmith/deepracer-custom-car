@@ -1,34 +1,8 @@
-# Building the Software Packages
+# Source structure
 
-There are many ways to build the software packages. The easiest is to use the VS.Code Dev Container configurations that are included in the repository. 
+## DeepRacer Packages
 
-## VS.Code Development Container Approach
-
-- Ubuntu 20.04 (AMD64) + ROS2 Foxy for building packages for original DeepRacer
-- Ubuntu 22.04 (AMD64) + ROS2 Humble
-- Ubuntu 22.04 (ARM64) + ROS2 Humble for Raspberry Pi4.
-
-Opening VS.Code will prompt you if you want to open the DevContainer. It will require Docker to be installed on your computer, Windows or Linux should be supported. To keep the bash history between sessions run `docker volume create deepracer-ros-bashhistory` before starting the container.
-
-Running the ARM64 container on a normal x86 computer will require enabling cross-compilation in Docker:
-
-        docker run --privileged --rm tonistiigi/binfmt --install all
-
-The cross-compiled container uses qemu and is quite a bit slower than a native container.
-
-Once DevContainer is runnning (first build might take a while) then packages can be installed with:
-
-        ./build_scripts/build-core.sh
-
-DEB packages can be created with:
-
-        ./build_scripts/build-packages.sh
-
-The packages will be created in the `dist/` folder.
-
-## Dependencies
-
-The repository contains a set of external packages that are forked into the `src/` directory. These are primarily the official AWS DeepRacer packages as well as their dependencies, which have been patched with community updates.
+The following packages are part of the core DeepRacer software and the upstream versions are maintained by AWS.
 
 | Package | Description |
 |---------|-------------|
@@ -46,8 +20,18 @@ The repository contains a set of external packages that are forked into the `src
 | [aws-deepracer-systems-pkg](https://github.com/aws-deepracer/aws-deepracer-systems-pkg.git) | Systems package for AWS DeepRacer |
 | [aws-deepracer-usb-monitor-pkg](https://github.com/aws-deepracer/aws-deepracer-usb-monitor-pkg.git) | USB monitor package for AWS DeepRacer |
 | [aws-deepracer-webserver-pkg](https://github.com/aws-deepracer/aws-deepracer-webserver-pkg.git) | Webserver package for AWS DeepRacer |
+| [aws-deepracer-launcher](https://github.com/aws-deepracer/aws-deepracer-launcher.git) | Launcher package for AWS DeepRacer |
+
+## External Packages
+
+External packages are mounted during the build process. Depending on the ROS version (Foxy, Humble or Jazzy) more or less of these are required.
+
 | [async_web_server_cpp](https://github.com/GT-RAIL/async_web_server_cpp.git) | Async web server for C++ |
 | [web_video_server](https://github.com/RobotWebTools/web_video_server.git) | Web video server |
 | [rplidar_ros](https://github.com/Slamtec/rplidar_ros.git) | RPLIDAR ROS package |
-| [aws-deepracer-launcher](https://github.com/aws-deepracer/aws-deepracer-launcher.git) | Launcher package for AWS DeepRacer |
+| [camera_ros](https://github.com/christianrauch/camera_ros) | Camera package utilizing LibCamera (used for Raspberry Pi) |
 | [larsll-deepracer-logging](https://github.com/larsll/larsll-deepracer-logging.git) | Logging package for AWS DeepRacer |
+
+## Licenses
+
+The repositories are all coming with a LICENSE file in the relevant subdirectory.
