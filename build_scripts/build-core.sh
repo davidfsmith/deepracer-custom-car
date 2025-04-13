@@ -83,8 +83,6 @@ if [ "$CACHE" != "true" ]; then
     # Resolve the dependencies
     rosdep install -i --from-path . --ignore-src --rosdistro $ROS_DISTRO -y
 
-    cd ..
-
     #
     # END - Pull request specific changes
     #
@@ -113,6 +111,8 @@ if [ "$CACHE" != "true" ]; then
 
 fi
 
+cd $DIR
+ 
 # Build the core
 export PYTHONWARNINGS=ignore:::setuptools.command.install
 if [ "$ROS_DISTRO" == "humble" ] || [ "$ROS_DISTRO" == "jazzy" ]; then
