@@ -3,5 +3,13 @@
 string hardware_version
 # String with the software information about the aws-deepracer-core package.
 string software_version
+# String with the CPU Model
+string cpu_model
+# String with the RAM
+string ram_amount
+# String with OS information
+string os_version
+# String with the ROS information
+string ros_distribution
 # Error flag indicating successful/failed service call.
 int32 error

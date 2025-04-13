@@ -59,11 +59,17 @@ class DeviceInfoNode(Node):
         self.hardware_version = None
         self.software_version = None
         self.sb = None
+        self.os_version = None
+        self.cpu_model = None
+        self.ros_distribution = None
 
         # Initialize the variables.
         self.load_hardware_version()
         self.load_software_version()
         self.load_sb()
+        self.load_os_version()
+        self.load_cpu_model()
+        self.load_ros_distribution()
 
         # Service to get the DeepRacer hardware and software version details.
         self.get_device_info_service = self.create_service(GetDeviceInfoSrv,
@@ -99,8 +105,13 @@ class DeviceInfoNode(Node):
             self.get_secure_boot_info()
             hw_version = self.get_hardware_version()
             sw_version = self.get_software_version()
+            os_version = self.get_os_version()
+            ros_distribution = self.get_ros_distribution()  # Add this line
             res.hardware_version = hw_version if hw_version else "--"
             res.software_version = sw_version if sw_version else "--"
+            res.os_version = os_version if os_version else "--"
+            res.cpu_model = self.cpu_model if self.cpu_model else "--"
+            res.ros_distribution = ros_distribution if ros_distribution else "--"  # Add this line
             res.error = 0
         except Exception:
             res.error = 1
@@ -220,6 +231,91 @@ class DeviceInfoNode(Node):
             self.load_sb()
         self.get_logger().info(f"Secure boot: {self.sb}")
 
+    def load_os_version(self):
+        """Function to load the OS version pretty name.
+        """
+        cmd = constants.OS_VERSION_CMD
+        try:
+            proc = subprocess.Popen(cmd,
+                                    shell=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
+                                    universal_newlines=True)
+            stdout = str(proc.communicate()[0]).strip()
+            self.os_version = stdout
+            self.get_logger().info(f"Loading OS information: {stdout}")
+        except Exception as ex:
+            self.get_logger().error(f"Failed to execute os version cmd: {cmd} err:{ex}")
+
+    def get_os_version(self):
+        """Getter method to return the OS version if loaded, else load it
+           and return.
+
+        Returns:
+            str: OS details.
+        """
+        self.get_logger().info("Getting the OS information")
+        if not self.os_version:
+            self.load_os_version()
+        self.get_logger().info(f"OS: {self.os_version}")
+
+
+    def load_cpu_model(self):
+        """Function to load the CPU Model name.
+        """
+        cmd = constants.CPU_MODEL_CMD
+        try:
+            proc = subprocess.Popen(cmd,
+                                    shell=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
+                                    universal_newlines=True)
+            stdout = str(proc.communicate()[0]).strip()
+            self.cpu_model = stdout
+            self.get_logger().info(f"Loading CPU model information: {stdout}")
+        except Exception as ex:
+            self.get_logger().error(f"Failed to execute CPU model version cmd: {cmd} err:{ex}")
+
+    def get_cpu_version(self):
+        """Getter method to return the CPU model if loaded, else load it
+           and return.
+
+        Returns:
+            str: CPU Model details.
+        """
+        self.get_logger().info("Getting the CPU model information")
+        if not self.cpu_model:
+            self.load_cpu_model()
+        self.get_logger().info(f"CPU: {self.cpu_model}")        
+
+    def load_ros_distribution(self):
+        """Function to load the ROS distribution name.
+        """
+        cmd = constants.ROS_DISTRO_CMD
+        try:
+            proc = subprocess.Popen(cmd,
+                                    shell=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
+                                    universal_newlines=True)
+            stdout = str(proc.communicate()[0]).strip()
+            self.ros_distribution = "ROS2 " + stdout.capitalize()
+            self.get_logger().info(f"Loading ROS distribution information: {self.ros_distribution}")
+        except Exception as ex:
+            self.get_logger().error(f"Failed to execute ROS distribution cmd: {cmd} err:{ex}")
+
+    def get_ros_distribution(self):
+        """Getter method to return the ROS distribution if loaded, else load it
+           and return.
+
+        Returns:
+            str: ROS distribution details.
+        """
+        self.get_logger().info("Getting the ROS distribution information")
+        if not self.ros_distribution:
+            self.load_ros_distribution()
+        self.get_logger().info(f"ROS Distribution: {self.ros_distribution}")
+        return self.ros_distribution
 
 def main(args=None):
 
