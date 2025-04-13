@@ -170,18 +170,29 @@ class DeviceInfoNode(Node):
                 hardware_version = ""
                 if board_id1 == "0":
                     if board_id0 == "0":
-                        hardware_version = "R1.0"
+                        hardware_version = "DeepRacer R1.0"
                     else:
-                        hardware_version = "R1.1"
+                        hardware_version = "DeepRacer R1.1"
                 else:
                     if board_id0 == "0":
-                        hardware_version = "R2.0"
+                        hardware_version = "DeepRacer R2.0"
                     else:
-                        hardware_version = "R2.1"
+                        hardware_version = "DeepRacer R2.1"
 
                 self.hardware_version = hardware_version
                 self.get_logger().info(f"Loading Hardware version: {self.hardware_version}")
             else:
+                # Check if a device tree is available (Raspberry Pi)
+                model_path = "/sys/firmware/devicetree/base/model"
+                try:
+                    with open(model_path, "r") as model_file:
+                        self.hardware_version = model_file.read().strip()
+                        self.get_logger().info(f"Loading Hardware version from device tree: {self.hardware_version}")
+                        return
+                except FileNotFoundError:
+                    self.get_logger().error(f"Device tree base model file not found at {model_path}")
+                except Exception as ex:
+                    self.get_logger().error(f"Error reading device tree base model file: {ex}")
                 self.get_logger().error("Could not load the hardware version")
         except Exception as ex:
             self.get_logger().error(f"Error while loading hardware version: {ex}")
