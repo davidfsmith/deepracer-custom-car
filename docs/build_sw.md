@@ -28,7 +28,7 @@ The packages will be created in the `dist/` folder.
 
 ## Dependencies
 
-During installation a set of external packages are downloaded in the `src/` directory. These are primarily the official AWS DeepRacer packages as well as their dependencies, which will be patched as part of the build process.
+The repository contains a set of external packages that are forked into the `src/` directory. These are primarily the official AWS DeepRacer packages as well as their dependencies, which have been patched with community updates.
 
 | Package | Description |
 |---------|-------------|

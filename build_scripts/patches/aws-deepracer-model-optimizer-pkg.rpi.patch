@@ -1,7 +1,7 @@
-diff --git a/model_optimizer_pkg/model_optimizer_pkg/constants.py b/model_optimizer_pkg/model_optimizer_pkg/constants.py
+diff --git a/src/aws-deepracer-model-optimizer-pkg/model_optimizer_pkg/model_optimizer_pkg/constants.py b/src/aws-deepracer-model-optimizer-pkg/model_optimizer_pkg/model_optimizer_pkg/constants.py
 index 1a6d51e..55d1936 100644
---- a/model_optimizer_pkg/model_optimizer_pkg/constants.py
-+++ b/model_optimizer_pkg/model_optimizer_pkg/constants.py
+--- a/src/aws-deepracer-model-optimizer-pkg/model_optimizer_pkg/model_optimizer_pkg/constants.py
++++ b/src/aws-deepracer-model-optimizer-pkg/model_optimizer_pkg/model_optimizer_pkg/constants.py
 @@ -24,9 +24,9 @@ MODEL_OPTIMIZER_SERVER_SERVICE_NAME = "model_optimizer_server"
  
  # Static variables
@@ -28,10 +28,10 @@ index 1a6d51e..55d1936 100644
      REV_CHANNELS = "--reverse_input_channels"
      OUT_DIR = "--output_dir"
      INPUT_SHAPE = "--input_shape"
-diff --git a/model_optimizer_pkg/model_optimizer_pkg/model_optimizer_node.py b/model_optimizer_pkg/model_optimizer_pkg/model_optimizer_node.py
+diff --git a/src/aws-deepracer-model-optimizer-pkg/model_optimizer_pkg/model_optimizer_pkg/model_optimizer_node.py b/src/aws-deepracer-model-optimizer-pkg/model_optimizer_pkg/model_optimizer_pkg/model_optimizer_node.py
 index 2fabe02..7d8f387 100644
---- a/model_optimizer_pkg/model_optimizer_pkg/model_optimizer_node.py
-+++ b/model_optimizer_pkg/model_optimizer_pkg/model_optimizer_node.py
+--- a/src/aws-deepracer-model-optimizer-pkg/model_optimizer_pkg/model_optimizer_pkg/model_optimizer_node.py
++++ b/src/aws-deepracer-model-optimizer-pkg/model_optimizer_pkg/model_optimizer_pkg/model_optimizer_node.py
 @@ -179,7 +179,8 @@ class ModelOptimizerNode(Node):
                                                                            input_width,
                                                                            value))
