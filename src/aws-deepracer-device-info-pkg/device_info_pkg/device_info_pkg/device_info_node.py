@@ -118,7 +118,7 @@ class DeviceInfoNode(Node):
             res.software_version = sw_version if sw_version else "--"
             res.os_version = os_version if os_version else "--"
             res.cpu_model = cpu_model if cpu_model else "--"
-            res.ros_distribution = ros_distribution if ros_distribution else "--"
+            res.ros_distro = ros_distribution if ros_distribution else "--"
             res.ram_amount = ram_amount if ram_amount else "--"
             res.disk_amount = disk_amount if disk_amount else "--"
             res.error = 0
@@ -295,7 +295,7 @@ class DeviceInfoNode(Node):
         self.get_logger().info("Getting the CPU model information")
         if not self.cpu_model:
             self.load_cpu_model()
-        self.get_logger().info(f"CPU: {self.cpu_model}")        
+        self.get_logger().info(f"CPU: {self.cpu_model}")
         return self.cpu_model
 
     def load_ros_distribution(self):
@@ -338,7 +338,8 @@ class DeviceInfoNode(Node):
                                     stderr=subprocess.STDOUT,
                                     universal_newlines=True)
             stdout = str(proc.communicate()[0]).strip()
-            self.ram_amount = stdout
+            ram_float = float(stdout) / (1024)
+            self.ram_amount = str(int(round(ram_float, 0))) + "GB"
             self.get_logger().info(f"Loading RAM amount information: {self.ram_amount}")
         except Exception as ex:
             self.get_logger().error(f"Failed to execute RAM amount cmd: {cmd} err:{ex}")
@@ -387,6 +388,7 @@ class DeviceInfoNode(Node):
         self.get_logger().info(f"Disk: {self.disk_amount}")
         return self.disk_amount
 
+
 def main(args=None):
 
     try:
@@ -404,6 +406,7 @@ def main(args=None):
     finally:
         if rclpy.ok():
             rclpy.shutdown()
+
 
 if __name__ == "__main__":
     main()

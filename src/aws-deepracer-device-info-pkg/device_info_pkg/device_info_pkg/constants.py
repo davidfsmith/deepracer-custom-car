@@ -34,4 +34,4 @@ ROS_DISTRO_CMD = "bash -c 'echo $ROS_DISTRO'"
 
 DISK_AMOUNT_CMD = "df / -h | awk '{print $2 \"B\"}' | tail -1"
 
-RAM_AMOUNT_CMD = "free -g | grep 'Mem' | awk '{print $2 \"GB\"}'"
+RAM_AMOUNT_CMD = "free -m | grep 'Mem' | awk '{print $2}'"
