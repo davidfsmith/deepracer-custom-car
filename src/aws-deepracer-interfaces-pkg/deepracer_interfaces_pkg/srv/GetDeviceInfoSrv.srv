@@ -7,6 +7,8 @@ string software_version
 string cpu_model
 # String with the RAM
 string ram_amount
+# Disk amount
+string disk_amount
 # String with OS information
 string os_version
 # String with the ROS information

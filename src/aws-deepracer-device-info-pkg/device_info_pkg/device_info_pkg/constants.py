@@ -31,3 +31,7 @@ OS_VERSION_CMD = "bash -c 'source /etc/os-release && echo $PRETTY_NAME'"
 CPU_MODEL_CMD = "lscpu | grep 'Model name' | awk -F: '{print $2}' | sed 's/^ *//' | sed 's/(R)/®/g' | sed 's/(TM)/™/g'"
 
 ROS_DISTRO_CMD = "bash -c 'echo $ROS_DISTRO'"
+
+DISK_AMOUNT_CMD = "df / -h | awk '{print $2 \"B\"}' | tail -1"
+
+RAM_AMOUNT_CMD = "free -g | grep 'Mem' | awk '{print $2 \"GB\"}'"

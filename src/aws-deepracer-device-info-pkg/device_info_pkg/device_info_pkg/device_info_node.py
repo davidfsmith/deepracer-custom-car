@@ -62,6 +62,8 @@ class DeviceInfoNode(Node):
         self.os_version = None
         self.cpu_model = None
         self.ros_distribution = None
+        self.ram_amount = None
+        self.disk_amount = None
 
         # Initialize the variables.
         self.load_hardware_version()
@@ -70,6 +72,8 @@ class DeviceInfoNode(Node):
         self.load_os_version()
         self.load_cpu_model()
         self.load_ros_distribution()
+        self.load_ram_amount()
+        self.load_disk_amount()
 
         # Service to get the DeepRacer hardware and software version details.
         self.get_device_info_service = self.create_service(GetDeviceInfoSrv,
@@ -108,11 +112,15 @@ class DeviceInfoNode(Node):
             os_version = self.get_os_version()
             ros_distribution = self.get_ros_distribution()
             cpu_model = self.get_cpu_model()
+            ram_amount = self.get_ram_amount()
+            disk_amount = self.get_disk_amount()
             res.hardware_version = hw_version if hw_version else "--"
             res.software_version = sw_version if sw_version else "--"
             res.os_version = os_version if os_version else "--"
             res.cpu_model = cpu_model if cpu_model else "--"
             res.ros_distribution = ros_distribution if ros_distribution else "--"
+            res.ram_amount = ram_amount if ram_amount else "--"
+            res.disk_amount = disk_amount if disk_amount else "--"
             res.error = 0
         except Exception:
             res.error = 1
@@ -318,6 +326,66 @@ class DeviceInfoNode(Node):
             self.load_ros_distribution()
         self.get_logger().info(f"ROS Distribution: {self.ros_distribution}")
         return self.ros_distribution
+
+    def load_ram_amount(self):
+        """Function to load the total RAM amount in the system.
+        """
+        cmd = constants.RAM_AMOUNT_CMD
+        try:
+            proc = subprocess.Popen(cmd,
+                                    shell=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
+                                    universal_newlines=True)
+            stdout = str(proc.communicate()[0]).strip()
+            self.ram_amount = stdout
+            self.get_logger().info(f"Loading RAM amount information: {self.ram_amount}")
+        except Exception as ex:
+            self.get_logger().error(f"Failed to execute RAM amount cmd: {cmd} err:{ex}")
+            self.ram_amount = None
+
+    def get_ram_amount(self):
+        """Getter method to return the total RAM amount if loaded, else load it
+           and return.
+
+        Returns:
+            str: RAM amount in GB.
+        """
+        self.get_logger().info("Getting the RAM amount information")
+        if not hasattr(self, 'ram_amount') or self.ram_amount is None:
+            self.load_ram_amount()
+        self.get_logger().info(f"RAM: {self.ram_amount}")
+        return self.ram_amount
+
+    def load_disk_amount(self):
+        """Function to load the total disk space amount.
+        """
+        cmd = constants.DISK_AMOUNT_CMD
+        try:
+            proc = subprocess.Popen(cmd,
+                                    shell=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
+                                    universal_newlines=True)
+            stdout = str(proc.communicate()[0]).strip()
+            self.disk_amount = stdout
+            self.get_logger().info(f"Loading disk amount information: {self.disk_amount}")
+        except Exception as ex:
+            self.get_logger().error(f"Failed to execute disk amount cmd: {cmd} err:{ex}")
+            self.disk_amount = None
+
+    def get_disk_amount(self):
+        """Getter method to return the total disk space if loaded, else load it
+           and return.
+
+        Returns:
+            str: Disk space amount.
+        """
+        self.get_logger().info("Getting the disk amount information")
+        if not hasattr(self, 'disk_amount') or self.disk_amount is None:
+            self.load_disk_amount()
+        self.get_logger().info(f"Disk: {self.disk_amount}")
+        return self.disk_amount
 
 def main(args=None):
 
