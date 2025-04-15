@@ -486,6 +486,17 @@ class SoftwareUpdateNode(Node):
         self.update_list = list()
         # Find relevant packages.
         for package_name in software_update_config.DEEPRACER_PACKAGES:
+            # Skip if already provided by another package that's installed
+            already_provided = False
+            for other_package in self.cache:
+                if other_package.is_installed and self.check_package_provides(other_package.name, package_name):
+                    self.get_logger().info(f"Package {package_name} is provided by installed {other_package.name}")
+                    already_provided = True
+                    break
+
+            if already_provided:
+                continue
+
             if package_name in self.cache:
                 package = self.cache[package_name]
                 self.get_logger().info(f"Verifying package {package.name}...")
@@ -775,6 +786,38 @@ class SoftwareUpdateNode(Node):
         pct_obj.update_pct = pct_dict[software_update_config.PROG_PCT_KEY]
         pct_obj.status = pct_dict[software_update_config.PROG_STATE_KEY]
         self.software_update_pct_publisher.publish(pct_obj)
+
+    def check_package_provides(self, package_name, provided_package_name):
+        """Checks if a package provides another package (acts as a substitute).
+        
+        Args:
+            package_name (str): Name of the package to check
+            provided_package_name (str): Name of the package that might be provided
+            
+        Returns:
+            bool: True if package_name provides provided_package_name, False otherwise
+        """
+        if package_name not in self.cache:
+            self.get_logger().error(f"Package {package_name} not found in cache")
+            return False
+            
+        package = self.cache[package_name]
+        
+        # Check installed version first if available
+        if package.is_installed and hasattr(package.installed, 'provides'):
+            for provided in package.installed.provides:
+                if provided.name == provided_package_name:
+                    self.get_logger().info(f"Installed {package_name} provides {provided_package_name}")
+                    return True
+                    
+        # Also check candidate version
+        if hasattr(package.candidate, 'provides'):
+            for provided in package.candidate.provides:
+                if provided.name == provided_package_name:
+                    self.get_logger().info(f"Candidate {package_name} provides {provided_package_name}")
+                    return True
+                    
+        return False
 
 
 def main(args=None):
