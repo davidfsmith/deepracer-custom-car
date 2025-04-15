@@ -464,9 +464,14 @@ class SoftwareUpdateNode(Node):
         """
         # Update and open the cache.
         try:
-            self.get_logger().info("Updating the cache...")
-            self.cache.update(fetch_progress=cache_update_progress.CacheUpdateProgress(self.get_logger()),
-                              sources_list=software_update_config.DEEPRACER_SOURCE_LIST_PATH)
+            for sources_list in software_update_config.DEEPRACER_SOURCE_LIST_PATH:
+                if not os.path.exists(sources_list):
+                    self.get_logger().error(f"Sources list {sources_list} does not exist")
+                    continue
+                self.get_logger().info(f"Updating the cache for {sources_list}...")
+                self.cache.update(fetch_progress=cache_update_progress.CacheUpdateProgress(self.get_logger()),
+                                sources_list=sources_list)
+                
             self.get_logger().info("Cache updated. Re-opening the cache...")
             self.cache.open(cache_open_progress.CacheOpenProgress(self.get_logger()))
         except Exception as ex:
