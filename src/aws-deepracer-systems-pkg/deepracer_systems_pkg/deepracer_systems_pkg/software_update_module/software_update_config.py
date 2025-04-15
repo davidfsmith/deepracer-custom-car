@@ -44,7 +44,7 @@ DEEPRACER_SOURCE_LIST_PATH = ["/etc/apt/sources.list.d/aws_deepracer.list",
 DEEPRACER_PACKAGES = ["aws-deepracer-sample-models",
                       "aws-deepracer-util",
                       "aws-deepracer-device-console",
-                      "aws-deepracer-core,"
+                      "aws-deepracer-core",
                       "aws-deepracer-community-device-console"]
 VERSION_MASK = "2."
 
