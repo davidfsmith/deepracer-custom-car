@@ -806,14 +806,14 @@ class SoftwareUpdateNode(Node):
         # Check installed version first if available
         if package.is_installed and hasattr(package.installed, 'provides'):
             for provided in package.installed.provides:
-                if provided.name == provided_package_name:
+                if provided == provided_package_name:
                     self.get_logger().info(f"Installed {package_name} provides {provided_package_name}")
                     return True
                     
         # Also check candidate version
         if hasattr(package.candidate, 'provides'):
             for provided in package.candidate.provides:
-                if provided.name == provided_package_name:
+                if provided == provided_package_name:
                     self.get_logger().info(f"Candidate {package_name} provides {provided_package_name}")
                     return True
                     
