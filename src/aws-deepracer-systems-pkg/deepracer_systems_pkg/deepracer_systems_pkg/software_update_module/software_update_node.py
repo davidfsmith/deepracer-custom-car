@@ -486,20 +486,20 @@ class SoftwareUpdateNode(Node):
         self.update_list = list()
         # Find relevant packages.
         for package_name in software_update_config.DEEPRACER_PACKAGES:
-            # Skip if already provided by another package that's installed
-            already_provided = False
-            for other_package in self.cache:
-                if other_package.is_installed and self.check_package_provides(other_package.name, package_name):
-                    self.get_logger().info(f"Package {package_name} is provided by installed {other_package.name}")
-                    already_provided = True
-                    break
-
-            if already_provided:
-                continue
-
             if package_name in self.cache:
                 package = self.cache[package_name]
                 self.get_logger().info(f"Verifying package {package.name}...")
+
+                # Skip if already provided by another package that's installed
+                already_provided = False
+                for other_package in self.cache:
+                    if other_package.is_installed and self.check_package_provides(other_package.name, package_name):
+                        already_provided = True
+                        break
+
+                if already_provided:
+                    self.get_logger().info(f"Package {package_name} is provided by installed {other_package.name}")
+                    continue
 
                 if not package.candidate.version.startswith(software_update_config.VERSION_MASK):
                     self.get_logger().info(f"* {package.name} package is not built for the Ubuntu and ROS packages; "
