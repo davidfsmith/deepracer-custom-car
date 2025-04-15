@@ -466,7 +466,7 @@ class SoftwareUpdateNode(Node):
         try:
             for sources_list in software_update_config.DEEPRACER_SOURCE_LIST_PATH:
                 if not os.path.exists(sources_list):
-                    self.get_logger().error(f"Sources list {sources_list} does not exist")
+                    self.get_logger().warn(f"Sources list {sources_list} does not exist")
                     continue
                 self.get_logger().info(f"Updating the cache for {sources_list}...")
                 self.cache.update(fetch_progress=cache_update_progress.CacheUpdateProgress(self.get_logger()),
