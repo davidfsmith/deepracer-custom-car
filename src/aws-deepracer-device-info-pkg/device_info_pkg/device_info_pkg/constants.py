@@ -18,6 +18,8 @@
 
 GET_DEVICE_INFO_SERVICE_NAME = "get_device_info"
 
+GET_DEVICE_STATUS_SERVICE_NAME = "get_device_status"
+
 # Core package whose version is considered as DeepRacer software version.
 AWS_DEEPRACER_CORE_PKG = "aws-deepracer-core"
 

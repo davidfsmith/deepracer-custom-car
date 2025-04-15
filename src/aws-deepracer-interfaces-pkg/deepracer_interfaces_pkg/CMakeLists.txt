@@ -51,6 +51,7 @@ set(srv_files
   "srv/EnableStateSrv.srv"
   "srv/GetCalibrationSrv.srv"
   "srv/GetDeviceInfoSrv.srv"
+  "srv/GetDeviceStatusSrv.srv"
   "srv/GetLedCtrlSrv.srv"
   "srv/GetModelLoadingStatusSrv.srv"
   "srv/InferenceStateSrv.srv"
