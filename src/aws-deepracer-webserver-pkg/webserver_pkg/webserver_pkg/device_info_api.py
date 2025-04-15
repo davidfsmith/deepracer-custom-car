@@ -55,7 +55,7 @@ def get_device_info():
                 "software_version": get_revision_info_res.software_version,
                 "cpu_model": get_revision_info_res.cpu_model,
                 "os_version": get_revision_info_res.os_version,
-                "disk_amout": get_revision_info_res.disk_amount,
+                "disk_amount": get_revision_info_res.disk_amount,
                 "ram_amount": get_revision_info_res.ram_amount,
                 "ros_distro": get_revision_info_res.ros_distro,
                 "success": True
@@ -64,7 +64,7 @@ def get_device_info():
                                              f"Software version: {data['software_version']}, "
                                              f"CPU model: {data['cpu_model']}, "
                                              f"OS version: {data['os_version']}, "
-                                             f"Disk amount: {data['disk_amout']}, "
+                                             f"Disk amount: {data['disk_amount']}, "
                                              f"RAM amount: {data['ram_amount']}, "
                                              f"ROS distro: {data['ros_distro']}")
         else:

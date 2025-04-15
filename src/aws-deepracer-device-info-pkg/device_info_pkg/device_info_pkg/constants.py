@@ -28,7 +28,7 @@ SECURE_BOOT_CMD = "od -An -t u2 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93
 
 OS_VERSION_CMD = "bash -c 'source /etc/os-release && echo $PRETTY_NAME'"
 
-CPU_MODEL_CMD = "lscpu | grep 'Model name' | awk -F: '{print $2}' | sed 's/^ *//' | sed 's/(R)/®/g' | sed 's/(TM)/™/g'"
+CPU_MODEL_CMD = "lscpu | grep 'Model name' | awk -F: '{print $2}' | sed 's/^ *//' | sed 's/(R)//g' | sed 's/(TM)//g' | sed 's/Cortex/Arm Cortex/g'"
 
 ROS_DISTRO_CMD = "bash -c 'echo $ROS_DISTRO'"
 
