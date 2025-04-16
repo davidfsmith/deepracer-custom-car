@@ -31,6 +31,7 @@ import rclpy
 from rclpy.node import Node
 
 from deepracer_interfaces_pkg.srv import GetDeviceStatusSrv
+from deepracer_interfaces_pkg.msg import DeviceStatusMsg
 from device_info_pkg import constants
 
 
@@ -50,10 +51,9 @@ class DeviceStatusNode(Node):
 
         # Variables to store the system metrics
         self.cpu_percent = 0.0
-        self.cpu_percents = []  # For per-core percentages
         self.cpu_temp = 0.0
         self.cpu_freq = 0.0     # Current CPU frequency in MHz
-        self.cpu_freq_max = 0.0 # Maximum CPU frequency in MHz
+        self.cpu_freq_max = 0.0  # Maximum CPU frequency in MHz
         self.memory_usage = 0.0
         self.free_disk = 0.0  # Now a float percentage instead of string
 
@@ -67,33 +67,40 @@ class DeviceStatusNode(Node):
             self.get_device_status
         )
 
+        # Publisher for device status updates
+        self.status_publisher = self.create_publisher(
+            DeviceStatusMsg,
+            constants.DEVICE_STATUS_TOPIC_NAME,
+            1  # QoS depth
+        )
+
         # Timer to periodically update the metrics
         self.timer_count = 0
         self.update_timer = self.create_timer(5.0, self.update_timer_callback)
-        
+
     def update_timer_callback(self):
         """Timer callback to update the system metrics periodically.
         """
         self.update_metrics()
         self.timer_count += 1
 
-        # Log every few callbacks
+        # Publish the updated status
+        self.publish_status()
+
         if self.timer_count % 5 == 0:
-            self.get_logger().debug(f"Status update (count: {self.timer_count})")
-            self.get_logger().debug(f"CPU percent: {self.cpu_percent:.2f}%")
-            self.get_logger().debug(f"Per-core CPU percents: {self.cpu_percents}")
-            self.get_logger().debug(f"CPU temp: {self.cpu_temp:.1f}°C")
-            self.get_logger().debug(f"CPU freq: {self.cpu_freq:.1f}MHz / {self.cpu_freq_max:.1f}MHz max")
-            self.get_logger().debug(f"Memory usage: {self.memory_usage:.1f}%")
-            self.get_logger().debug(f"Free disk: {self.free_disk:.1f}%")
+            self.get_logger().info(
+                f"Status update (count: {self.timer_count}) | " + 
+                f"CPU percent: {self.cpu_percent:.2f}% | " + 
+                f"CPU temp: {self.cpu_temp:.1f}°C | " + 
+                f"CPU freq: {self.cpu_freq:.1f}MHz / {self.cpu_freq_max:.1f}MHz max | " + 
+                f"Memory usage: {self.memory_usage:.1f}% | Free disk: {self.free_disk:.1f}%")
 
     def get_device_status(self, req, res):
         """Callback for the get_device_status service. Returns the system metrics."""
         self.get_logger().info("get_device_status service called")
-        try:          
+        try:
             # Fill response with current metrics
             res.cpu_percent = self.cpu_percent
-            res.cpu_percents = self.cpu_percents
             res.cpu_temp = self.cpu_temp
             res.cpu_freq = self.cpu_freq
             res.cpu_freq_max = self.cpu_freq_max
@@ -120,10 +127,7 @@ class DeviceStatusNode(Node):
         try:
             # Get overall CPU utilization as percentage
             self.cpu_percent = psutil.cpu_percent(interval=0.1)
-            
-            # Get per-CPU percentages (optional)
-            self.cpu_percents = psutil.cpu_percent(interval=0.1, percpu=True)
-            
+
             self.get_logger().debug(f"CPU utilization updated: {self.cpu_percent}%")
         except Exception as ex:
             self.get_logger().error(f"Failed to get CPU utilization: {ex}")
@@ -202,15 +206,32 @@ class DeviceStatusNode(Node):
         try:
             # Get disk usage for the root filesystem
             disk = psutil.disk_usage('/')
-            
+
             # Calculate free disk space as percentage (disk.percent is usage percentage)
             free_percent = 100.0 - disk.percent
             self.free_disk = free_percent
-            
+
             self.get_logger().debug(f"Free disk space updated: {self.free_disk:.1f}%")
         except Exception as ex:
             self.get_logger().error(f"Failed to get free disk space: {ex}")
             self.free_disk = 0.0
+
+    def publish_status(self):
+        """Publish the current device status metrics.
+        """
+        try:
+            msg = DeviceStatusMsg()
+            msg.cpu_percent = self.cpu_percent
+            msg.cpu_temp = self.cpu_temp
+            msg.cpu_freq = self.cpu_freq
+            msg.cpu_freq_max = self.cpu_freq_max
+            msg.memory_usage = self.memory_usage
+            msg.free_disk = self.free_disk
+
+            self.status_publisher.publish(msg)
+            self.get_logger().debug("Published device status update")
+        except Exception as ex:
+            self.get_logger().error(f"Error publishing device status: {ex}")
 
 
 def main(args=None):

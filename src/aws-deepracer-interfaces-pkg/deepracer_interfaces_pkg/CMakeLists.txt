@@ -35,6 +35,7 @@ endif()
 
 set(msg_files
   "msg/CameraMsg.msg"
+  "msg/DeviceStatusMsg.msg"
   "msg/InferResults.msg"
   "msg/InferResultsArray.msg"
   "msg/EvoSensorMsg.msg"
