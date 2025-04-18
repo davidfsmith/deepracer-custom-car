@@ -112,6 +112,12 @@ def launch_setup(context, *args, **kwargs):
         executable='device_info_node',
         name='device_info_node'
     )
+    device_status_node = Node(
+        package='device_info_pkg',
+        namespace='device_info_pkg',
+        executable='device_status_node',
+        name='device_status_node'
+    )
 
     battery_node_exec = 'battery_node'
     if str2bool(LaunchConfiguration('battery_dummy').perform(context)):
