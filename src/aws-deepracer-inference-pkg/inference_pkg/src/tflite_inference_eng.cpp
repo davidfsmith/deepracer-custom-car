@@ -22,6 +22,8 @@
 
 #include <thread>
 #include <exception>
+#include <omp.h>
+
 #define RAD2DEG(x) ((x)*180./M_PI)
 
 const std::string LIDAR = "LIDAR";
@@ -191,6 +193,9 @@ namespace TFLiteInferenceEngine {
             int num_threads = std::thread::hardware_concurrency(); // Get available CPU cores
             if (num_threads == 0) num_threads = 2; // Fallback if detection fails
             interpreter_->SetNumThreads(num_threads);
+            // Set OpenMP threads (for operations that use OpenMP)
+            omp_set_num_threads(num_threads);
+
             RCLCPP_INFO(inferenceNode->get_logger(), "TFLite interpreter using %d threads", num_threads);
 
             interpreter_->AllocateTensors();

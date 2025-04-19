@@ -164,7 +164,7 @@ for pkg in $PACKAGES; do
 
     if [ "$pkg" == "aws-deepracer-core" ]; then
         VERSION=$(jq -r ".[\"aws-deepracer-core\"]" $DIR/build_scripts/versions.json)-$(lsb_release -cs)
-        PACKAGE_DEPS="gnupg, python3-apt, ros-$ROS_DISTRO-ros-core, ros-$ROS_DISTRO-image-transport, ros-$ROS_DISTRO-compressed-image-transport, ros-$ROS_DISTRO-pybind11-vendor, ros-$ROS_DISTRO-cv-bridge"
+        PACKAGE_DEPS="gnupg, python3-apt, python3-psutil, libomp5, ros-$ROS_DISTRO-ros-core, ros-$ROS_DISTRO-image-transport, ros-$ROS_DISTRO-compressed-image-transport, ros-$ROS_DISTRO-pybind11-vendor, ros-$ROS_DISTRO-cv-bridge"
         if [ "$ROS_DISTRO" == "humble" ]; then
             PACKAGE_DEPS="$PACKAGE_DEPS, ros-$ROS_DISTRO-rplidar-ros, ros-$ROS_DISTRO-libcamera, ros-$ROS_DISTRO-camera-calibration-parsers, ros-$ROS_DISTRO-camera-info-manager, ros-$ROS_DISTRO-web-video-server, ros-$ROS_DISTRO-rosbag2, ros-$ROS_DISTRO-rosbag2-py, ros-$ROS_DISTRO-rosbag2-storage-mcap"
         fi
