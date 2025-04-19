@@ -171,6 +171,7 @@ for pkg in $PACKAGES; do
         echo -e "\n### Building aws-deepracer-core $VERSION ###\n"
         dpkg-deb -R src/aws-deepracer-core_*amd64.deb aws-deepracer-core
         cd aws-deepracer-core
+        cp $DIR/build_scripts/files/common/deepracer-core.service etc/systemd/system/
         sed -i "s/Architecture: amd64/Architecture: $TARGET_ARCH/" DEBIAN/control
         sed -i "s/Version: .*/Version: $VERSION/" DEBIAN/control
         sed -i 's/python-apt/python3-apt/' DEBIAN/control
@@ -185,6 +186,7 @@ for pkg in $PACKAGES; do
         if [ "$ROS_DISTRO" == "humble" ]; then
             cp -r $DIR/build_scripts/files/pi/aws-deepracer-core-postinst DEBIAN/postinst
         fi
+        rm etc/systemd/system/deepracer-utility.service
         rm DEBIAN/preinst
         cd ..
         dpkg-deb --root-owner-group -b aws-deepracer-core
