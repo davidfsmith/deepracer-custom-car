@@ -29,9 +29,11 @@ The node defines:
 import psutil
 import rclpy
 from rclpy.node import Node
+from collections import deque
+import numpy as np
 
 from deepracer_interfaces_pkg.srv import GetDeviceStatusSrv
-from deepracer_interfaces_pkg.msg import DeviceStatusMsg
+from deepracer_interfaces_pkg.msg import DeviceStatusMsg, LatencyMeasure
 from device_info_pkg import constants
 
 
@@ -55,7 +57,28 @@ class DeviceStatusNode(Node):
         self.cpu_freq = 0.0     # Current CPU frequency in MHz
         self.cpu_freq_max = 0.0  # Maximum CPU frequency in MHz
         self.memory_usage = 0.0
-        self.free_disk = 0.0  # Now a float percentage instead of string
+        self.free_disk = 0.0
+        self.fps_mean = 0.0
+
+        # Data structure to store latency messages
+        self.latency_stats = {
+            "mean": 0.0,
+            "std": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "median": 0.0,
+            "p95": 0.0
+        }
+        self.latency_history = deque(maxlen=constants.MAX_LATENCY_HISTORY)
+
+        # Subscribe to the latency topic
+        self.latency_subscriber = self.create_subscription(
+            LatencyMeasure,
+            constants.SERVO_LATENCY_TOPIC_NAME,
+            self.latency_callback,
+            10  # QoS depth
+        )
+        self.get_logger().info(f"Subscribed to {constants.SERVO_LATENCY_TOPIC_NAME} topic")
 
         # Initialize metrics on startup
         self.update_metrics()
@@ -78,6 +101,28 @@ class DeviceStatusNode(Node):
         self.timer_count = 0
         self.update_timer = self.create_timer(5.0, self.update_timer_callback)
 
+    def latency_callback(self, msg: LatencyMeasure):
+        """Callback for the latency subscriber.
+
+        Args:
+            msg (LatencyMeasure): The latency message containing send and receive timestamps
+        """
+        try:
+            # Calculate latency as the difference between receive and send times
+            # Convert nanoseconds to milliseconds by dividing by 1,000,000
+            receive_time_ns = msg.receive.sec * 1e9 + msg.receive.nanosec
+            send_time_ns = msg.send.sec * 1e9 + msg.send.nanosec
+
+            # Calculate latency in milliseconds
+            latency_value = (receive_time_ns - send_time_ns) / 1.0e6
+            self.latency_timestamp = msg.receive
+
+            # Store the latency value and timestamp in the history deque
+            self.latency_history.append((latency_value, self.latency_timestamp))
+            self.get_logger().debug(f"Received latency: {latency_value:.2f}ms (send to receive)")
+        except Exception as ex:
+            self.get_logger().error(f"Error processing latency message: {ex}")
+
     def update_timer_callback(self):
         """Timer callback to update the system metrics periodically.
         """
@@ -89,11 +134,12 @@ class DeviceStatusNode(Node):
 
         if self.timer_count % 5 == 0:
             self.get_logger().info(
-                f"Status update (count: {self.timer_count}) | " + 
-                f"CPU percent: {self.cpu_percent:.2f}% | " + 
-                f"CPU temp: {self.cpu_temp:.1f}°C | " + 
-                f"CPU freq: {self.cpu_freq:.1f}MHz / {self.cpu_freq_max:.1f}MHz max | " + 
-                f"Memory usage: {self.memory_usage:.1f}% | Free disk: {self.free_disk:.1f}%")
+                f"Status update (count: {self.timer_count}) | " +
+                f"CPU percent: {self.cpu_percent:.2f}% | " +
+                f"CPU temp: {self.cpu_temp:.1f}°C | " +
+                f"CPU freq: {self.cpu_freq:.1f}MHz / {self.cpu_freq_max:.1f}MHz max | " +
+                f"Memory usage: {self.memory_usage:.1f}% | Free disk: {self.free_disk:.1f}% | " +
+                f"Latency: {self.latency_stats['mean']:.1f}")
 
     def get_device_status(self, req, res):
         """Callback for the get_device_status service. Returns the system metrics."""
@@ -106,6 +152,9 @@ class DeviceStatusNode(Node):
             res.cpu_freq_max = self.cpu_freq_max
             res.memory_usage = self.memory_usage
             res.free_disk = self.free_disk
+            res.latency_mean = self.latency_stats["mean"]
+            res.latency_p95 = self.latency_stats["p95"]
+            res.fps_mean = self.fps_mean
             res.error = 0
         except Exception as ex:
             res.error = 1
@@ -120,6 +169,7 @@ class DeviceStatusNode(Node):
         self.update_cpu_freq()
         self.update_memory_usage()
         self.update_free_disk()
+        self.update_latency_statistics()
 
     def update_cpu_load(self):
         """Function to update CPU utilization percentage using psutil.
@@ -216,6 +266,34 @@ class DeviceStatusNode(Node):
             self.get_logger().error(f"Failed to get free disk space: {ex}")
             self.free_disk = 0.0
 
+    def update_latency_statistics(self):
+        """Get statistics for the latency values.
+
+        Returns:
+            dict: Dictionary containing mean, std, min, max, etc.
+        """
+        if not self.latency_history:
+            return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0}
+
+        # Extract just latency values from the deque (not timestamps)
+        latency_values = np.array([item[0] for item in self.latency_history])
+        # Calculate the difference between the maximum and minimum timestamps
+        time_diff_ns = (self.latency_history[-1][1].sec * 1e9 + self.latency_history[-1][1].nanosec) - \
+            (self.latency_history[0][1].sec * 1e9 + self.latency_history[0][1].nanosec)
+        time_diff_ms = time_diff_ns / 1.0e6  # Convert nanoseconds to milliseconds
+        # Calculate fps
+        if time_diff_ms > 0:
+            self.fps_mean = (len(latency_values) - 1) / (time_diff_ms / 1000.0)
+
+        self.latency_stats = {
+            "mean": np.mean(latency_values),
+            "std": np.std(latency_values),
+            "min": np.min(latency_values),
+            "max": np.max(latency_values),
+            "median": np.median(latency_values),
+            "p95": np.percentile(latency_values, 95)
+        }
+
     def publish_status(self):
         """Publish the current device status metrics.
         """
@@ -227,6 +305,9 @@ class DeviceStatusNode(Node):
             msg.cpu_freq_max = self.cpu_freq_max
             msg.memory_usage = self.memory_usage
             msg.free_disk = self.free_disk
+            msg.latency_mean = self.latency_stats["mean"]
+            msg.latency_p95 = self.latency_stats["p95"]
+            msg.fps_mean = self.fps_mean
 
             self.status_publisher.publish(msg)
             self.get_logger().debug("Published device status update")

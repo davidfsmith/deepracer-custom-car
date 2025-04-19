@@ -193,9 +193,12 @@ def get_device_status():
               - cpu_freq_max: Maximum CPU frequency in MHz
               - memory_usage: Memory utilization percentage
               - free_disk: Free disk space percentage
+              - latency_mean: Mean latency in millisecondsz
+              - latency_p95: 95th percentile latency in milliseconds
+              - fps_mean: Mean frames per second
     """
     webserver_node = webserver_publisher_node.get_webserver_node()
-    webserver_node.get_logger().info("Getting device status metrics")
+    webserver_node.get_logger().debug("Getting device status metrics")
     
     try:
         # Get the latest device status from the subscription data
@@ -209,6 +212,9 @@ def get_device_status():
                 "cpu_freq_max": latest_device_status.cpu_freq_max,
                 "memory_usage": latest_device_status.memory_usage,
                 "free_disk": latest_device_status.free_disk,
+                "latency_mean": latest_device_status.latency_mean,
+                "latency_p95": latest_device_status.latency_p95,
+                "fps_mean": latest_device_status.fps_mean,
                 "success": True
             }
             webserver_node.get_logger().debug(
