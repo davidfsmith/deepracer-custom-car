@@ -115,10 +115,21 @@ class DeviceStatusNode(Node):
 
             # Calculate latency in milliseconds
             latency_value = (receive_time_ns - send_time_ns) / 1.0e6
-            self.latency_timestamp = msg.receive
+            current_timestamp = msg.receive
+
+            # Check if we should clear the history due to a time gap
+            if self.latency_history:
+                last_timestamp = self.latency_history[-1][1]
+                last_time_ns = last_timestamp.sec * 1e9 + last_timestamp.nanosec
+                current_time_ns = current_timestamp.sec * 1e9 + current_timestamp.nanosec
+                time_gap_ms = (current_time_ns - last_time_ns) / 1.0e6
+                
+                if time_gap_ms > 500.0:  # If more than 500ms since last measurement
+                    self.get_logger().info(f"Latency gap detected ({time_gap_ms:.1f}ms). Clearing latency history.")
+                    self.latency_history.clear()
 
             # Store the latency value and timestamp in the history deque
-            self.latency_history.append((latency_value, self.latency_timestamp))
+            self.latency_history.append((latency_value, current_timestamp))
             self.get_logger().debug(f"Received latency: {latency_value:.2f}ms (send to receive)")
         except Exception as ex:
             self.get_logger().error(f"Error processing latency message: {ex}")

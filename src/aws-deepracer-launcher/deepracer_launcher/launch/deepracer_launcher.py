@@ -227,7 +227,7 @@ def launch_setup(context, *args, **kwargs):
                 'output_path': '/opt/aws/deepracer/logs',
                 'monitor_topic': '/deepracer_navigation_pkg/auto_drive',
                 'file_name_topic': '/inference_pkg/model_artifact',
-                'log_topics': ['/inference_pkg/rl_results']
+                'log_topics': ['/inference_pkg/rl_results', '/device_info_pkg/device_status', '/servo_pkg/latency']
         }]
     )
 
@@ -296,6 +296,6 @@ def generate_launch_description():
             DeclareLaunchArgument(
                 name="rplidar",
                 default_value="True",
-                description="Enable RPLIDAR node"),                
+                description="Enable RPLIDAR node"),
             OpaqueFunction(function=launch_setup)
         ])
