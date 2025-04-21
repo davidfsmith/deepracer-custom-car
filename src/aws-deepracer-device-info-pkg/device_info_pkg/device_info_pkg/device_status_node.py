@@ -29,6 +29,7 @@ The node defines:
 import psutil
 import rclpy
 from rclpy.node import Node
+from rclpy.executors import MultiThreadedExecutor
 from collections import deque
 import numpy as np
 
@@ -99,7 +100,7 @@ class DeviceStatusNode(Node):
 
         # Timer to periodically update the metrics
         self.timer_count = 0
-        self.update_timer = self.create_timer(5.0, self.update_timer_callback)
+        self.update_timer = self.create_timer(2.5, self.update_timer_callback)
 
     def latency_callback(self, msg: LatencyMeasure):
         """Callback for the latency subscriber.
@@ -187,7 +188,7 @@ class DeviceStatusNode(Node):
         """
         try:
             # Get overall CPU utilization as percentage
-            self.cpu_percent = psutil.cpu_percent(interval=0.1)
+            self.cpu_percent = psutil.cpu_percent()
 
             self.get_logger().debug(f"CPU utilization updated: {self.cpu_percent}%")
         except Exception as ex:
@@ -298,10 +299,10 @@ class DeviceStatusNode(Node):
 
         self.latency_stats = {
             "mean": np.mean(latency_values),
-            "std": np.std(latency_values),
-            "min": np.min(latency_values),
-            "max": np.max(latency_values),
-            "median": np.median(latency_values),
+            # "std": np.std(latency_values),
+            # "min": np.min(latency_values),
+            # "max": np.max(latency_values),
+            # "median": np.median(latency_values),
             "p95": np.percentile(latency_values, 95)
         }
 
@@ -327,19 +328,20 @@ class DeviceStatusNode(Node):
 
 
 def main(args=None):
+
     node = None
     try:
         rclpy.init(args=args)
         node = DeviceStatusNode()
-        rclpy.spin(node)
+        executor = MultiThreadedExecutor()
+        rclpy.spin(node, executor)
     except KeyboardInterrupt:
         pass
-    except Exception as ex:
+    except Exception as e:
         if node:
-            node.get_logger().error(f"Device Status Node error: {ex}")
+            node.get_logger().error(f"Error in DeviceStatusNode: {e}")
     finally:
         if node:
-            # Single shutdown log line
             node.get_logger().info("Device Status Node shutting down")
             node.destroy_node()
         if rclpy.ok():
