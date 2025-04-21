@@ -16,6 +16,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     python3-rosinstall \
     python3-venv \
     ros-humble-cv-bridge \
+    ros-humble-camera-ros \
     ros-humble-image-transport \
     ros-humble-compressed-image-transport \
     ros-humble-pybind11-vendor \

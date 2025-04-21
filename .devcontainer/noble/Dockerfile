@@ -19,6 +19,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     python3-venv \
     ros-dev-tools \
     ros-jazzy-cv-bridge \
+    ros-jazzy-camera-ros \
     ros-jazzy-image-transport \
     ros-jazzy-compressed-image-transport \
     ros-jazzy-pybind11-vendor \
