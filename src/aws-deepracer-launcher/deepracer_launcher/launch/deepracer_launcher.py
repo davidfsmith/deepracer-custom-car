@@ -58,8 +58,17 @@ def launch_setup(context, *args, **kwargs):
                  'FrameDurationLimits': [math.floor(1e6 / fps), math.ceil(1e6 / fps)]}
             ],
             remappings=[
+                # Topic remappings
+                ('/camera_pkg/camera/camera_info', '/camera_pkg/camera_info'),
                 ('/camera_pkg/camera/image_raw', '/camera_pkg/display_mjpeg'),
-                ('/camera_pkg/camera/image_raw/compressed', '/camera_pkg/display_mjpeg/compressed')
+                ('/camera_pkg/camera/image_raw/compressed', '/camera_pkg/display_mjpeg/compressed'),
+                # Service remappings
+                ('/camera_pkg/camera/describe_parameters', '/camera_pkg/describe_parameters'),
+                ('/camera_pkg/camera/get_parameter_types', '/camera_pkg/get_parameter_types'),
+                ('/camera_pkg/camera/get_parameters', '/camera_pkg/get_parameters'),
+                ('/camera_pkg/camera/list_parameters', '/camera_pkg/list_parameters'),
+                ('/camera_pkg/camera/set_parameters', '/camera_pkg/set_parameters'),
+                ('/camera_pkg/camera/set_parameters_atomically', '/camera_pkg/set_parameters_atomically')
             ]
         )
 
@@ -227,7 +236,7 @@ def launch_setup(context, *args, **kwargs):
                 'output_path': '/opt/aws/deepracer/logs',
                 'monitor_topic': '/deepracer_navigation_pkg/auto_drive',
                 'file_name_topic': '/inference_pkg/model_artifact',
-                'log_topics': ['/inference_pkg/rl_results', '/device_info_pkg/device_status', '/servo_pkg/latency']
+                'log_topics': ['/inference_pkg/rl_results', '/device_info_pkg/device_status']
         }]
     )
 
