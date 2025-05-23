@@ -46,7 +46,7 @@ namespace PWM {
     #define SERVO_PERIOD 20000000
     /// Servo GPIO channel based on hardware platform
     #if defined(HW_PLATFORM_RPI4) || defined(HW_PLATFORM_RPI5)
-        #define GPIO_CHANNEL 1
+        #define GPIO_CHANNEL -1
     #else
         // Default for DeepRacer (DR)
         #define GPIO_CHANNEL 436
