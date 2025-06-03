@@ -1,0 +1,47 @@
+#!/bin/bash
+# This script is run after the installation of the aws-deepracer-core package.
+# It ensures that the ROS key is added to the keyring if it is not already present.
+
+if ! dpkg -s ros2-apt-source >/dev/null 2>&1; then
+    # Download the key directly
+    KEY_URL='https://raw.githubusercontent.com/ros/rosdistro/master/ros.key'
+    KEYRING_PATH='/usr/share/keyrings/ros-archive-keyring.gpg'
+
+    # Create keyring directory if it doesn't exist
+    mkdir -p "$(dirname "$KEYRING_PATH")"
+
+    # Download key and get key ID
+    TEMP_KEY_FILE=$(mktemp)
+    curl -sSL "$KEY_URL" -o "$TEMP_KEY_FILE"
+    if [ ! -s "$TEMP_KEY_FILE" ]; then
+        echo "Failed to download ROS key"
+        rm -f "$TEMP_KEY_FILE"
+        exit 1
+    fi
+
+    # Extract key ID using a more reliable method
+    KEY_ID=$(gpg --with-colons --import-options show-only --import "$TEMP_KEY_FILE" 2>/dev/null | awk -F: '/^pub:/ {print $5}' | head -n1)
+
+    if [ -z "$KEY_ID" ]; then
+        echo "Failed to extract key ID from downloaded key"
+        rm -f "$TEMP_KEY_FILE"
+        exit 1
+    fi
+
+    echo "ROS key ID: $KEY_ID"
+
+    # Import the key
+    gpg --no-default-keyring --keyring "$KEYRING_PATH" --import "$TEMP_KEY_FILE"
+    if [ $? -eq 0 ]; then
+        echo "ROS key $KEY_ID has been added to the keyring."
+    else
+        echo "Failed to import ROS key"
+        rm -f "$TEMP_KEY_FILE"
+        exit 1
+    fi
+
+    # Clean up temporary file
+    rm -f "$TEMP_KEY_FILE"
+fi
+
+systemctl enable deepracer-core.service
