@@ -101,9 +101,9 @@ elseif(HW_PLATFORM STREQUAL "RPI")
     message(STATUS "RPI architecture detected, enabling Cortex-A72 optimizations")
     if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       add_compile_options(
-        -march=armv8-a       # ARMv8 architecture (required for 64-bit)
+        -march=armv8-a+crc  # ARMv8 architecture (required for 64-bit)
         -mtune=cortex-a72   # Optimize for CM4's Cortex-A72 CPU
-        -ftree-vectorize     # Enable auto-vectorization
+        -ftree-vectorize    # Enable auto-vectorization
       )
     endif()  
   endif()

@@ -16,7 +16,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   
   # Enhanced optimizations for sensor fusion
   add_compile_options(-O3)             # Maximum optimization
-  add_compile_options(-flto=auto)           # Link-time optimization
+  add_compile_options(-flto=auto)      # Link-time optimization
   add_compile_options(-ffast-math)     # Faster math (important for sensor fusion)
   
   # Architecture-specific optimizations - detect at runtime
@@ -48,7 +48,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   " IS_ARM64)
   
   if(IS_ARM64)
-    add_compile_options(-march=armv8-a -mtune=cortex-a72)
+    add_compile_options(-march=armv8-a+crc -mtune=cortex-a72)
   endif()
 endif()
 
