@@ -62,7 +62,7 @@ if [ -z "$COMPONENT" ]; then
 fi
 
 for PKG in $PACKAGES; do
-    VERSION=$(jq -r ".[\"$PKG\"]" $DIR/build_scripts/versions.json)-$DIST
+    VERSION=$(jq -r ".[\"$PKG\"]" $DIR/versions.json)-$DIST
     FILE_NAME=$(echo ${PKG}_${VERSION}_${ARCHITECTURE}.deb | sed -e 's/\+/\-/')   
     if [ ! -f "dist/$FILE_NAME" ]; then
         if [ -f "dist/$(echo ${PKG}_${VERSION}_all.deb | sed -e 's/\+/\-/')" ]; then

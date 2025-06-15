@@ -34,7 +34,7 @@ fi
 echo "Detected ROS version: $ROS_DISTRO"
 source /opt/ros/$ROS_DISTRO/setup.bash
 
-VERSION_BASE=$(jq -r ".[\"ros-$ROS_DISTRO-libcamera\"]" $DIR/build_scripts/versions.json)
+VERSION_BASE=$(jq -r ".[\"ros-$ROS_DISTRO-libcamera\"]" $DIR/versions.json)
 VERSION=1:${VERSION_BASE}-$(lsb_release -cs)
 
 cd $DIR/deps/

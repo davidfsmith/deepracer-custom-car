@@ -111,7 +111,7 @@ fi
 cd $DIR/pkg-build
 for pkg in $PACKAGES; do
     if [ "$pkg" == "aws-deepracer-util" ]; then
-        VERSION=$(jq -r ".[\"aws-deepracer-util\"]" $DIR/build_scripts/versions.json)-$(lsb_release -cs)
+        VERSION=$(jq -r ".[\"aws-deepracer-util\"]" $DIR/versions.json)-$(lsb_release -cs)
         echo -e "\n### Building aws-deepracer-util $VERISON ###\n"
         dpkg-deb -R src/aws-deepracer-util_*amd64.deb aws-deepracer-util
         cd aws-deepracer-util
@@ -148,7 +148,7 @@ for pkg in $PACKAGES; do
     fi
 
     if [ "$pkg" == "aws-deepracer-device-console" ]; then
-        VERSION=$(jq -r ".[\"aws-deepracer-device-console\"]" $DIR/build_scripts/versions.json)-$(lsb_release -cs)
+        VERSION=$(jq -r ".[\"aws-deepracer-device-console\"]" $DIR/versions.json)-$(lsb_release -cs)
         echo -e "\n### Building aws-deepracer-device-console $VERSION ###\n"
         dpkg-deb -R src/aws-deepracer-device-console_*amd64.deb aws-deepracer-device-console
         cd aws-deepracer-device-console
@@ -169,7 +169,7 @@ for pkg in $PACKAGES; do
     fi
 
     if [ "$pkg" == "aws-deepracer-core" ]; then
-        VERSION=$(jq -r ".[\"aws-deepracer-core\"]" $DIR/build_scripts/versions.json)-$(lsb_release -cs)
+        VERSION=$(jq -r ".[\"aws-deepracer-core\"]" $DIR/versions.json)-$(lsb_release -cs)
         PACKAGE_DEPS="gnupg, python3-apt, python3-psutil, libomp5, ros-$ROS_DISTRO-ros-core, \
                         ros-$ROS_DISTRO-image-transport, ros-$ROS_DISTRO-compressed-image-transport, \
                         ros-$ROS_DISTRO-pybind11-vendor, ros-$ROS_DISTRO-cv-bridge"
@@ -216,7 +216,7 @@ for pkg in $PACKAGES; do
     fi
 
     if [ "$pkg" == "aws-deepracer-sample-models" ]; then
-        VERSION=$(jq -r ".[\"aws-deepracer-sample-models\"]" $DIR/build_scripts/versions.json)-$(lsb_release -cs)
+        VERSION=$(jq -r ".[\"aws-deepracer-sample-models\"]" $DIR/versions.json)-$(lsb_release -cs)
         echo -e "\n### Building aws-deepracer-sample-models $VERISON ###\n"
         dpkg-deb -R src/aws-deepracer-sample-models_*amd64.deb aws-deepracer-sample-models
         cd aws-deepracer-sample-models
