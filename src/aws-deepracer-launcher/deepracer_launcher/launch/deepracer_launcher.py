@@ -14,7 +14,10 @@
 #   limitations under the License.                                              #
 #################################################################################
 
+from calendar import c
 import math
+
+from numpy import e
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
@@ -53,30 +56,36 @@ def launch_setup(context, *args, **kwargs):
                          'FrameDurationLimits': [math.floor(1e6 / fps), math.ceil(1e6 / fps)]}
 
         # Camera detection
-        from libcamera import CameraManager
-        camera_manager = CameraManager.singleton()
+        try:
+            from libcamera import CameraManager
+            camera_manager = CameraManager.singleton()
 
-        camera_model = None
-        
-        # If camera_index is specified, use it to select the camera
-        if camera_index >= 0 and camera_index < len(camera_manager.cameras):
-            camera = camera_manager.cameras[camera_index]
-            for prop_id, value in camera.properties.items():
-                if 'Model' in str(prop_id):
-                    camera_model = value
+            camera_model = None
+            
+            # If camera_index is specified, use it to select the camera
+            if camera_index >= 0 and camera_index < len(camera_manager.cameras):
+                camera = camera_manager.cameras[camera_index]
+                for prop_id, value in camera.properties.items():
+                    if 'Model' in str(prop_id):
+                        camera_model = value
 
-            camera_params['camera'] = camera_index
-            print(f"Camera {camera_index}: {camera_model} - {camera.id}")
+                camera_params['camera'] = camera_index
+                print(f"Camera {camera_index}: {camera_model} - {camera.id}")
 
-            # Select the sensor mode based on the camera model
-            # RPi Cameras need specific sensor modes to avoid cropping
-            match camera_model:
-                case 'imx708':
-                    camera_params['sensor_mode'] = '2304:1296'
-                    camera_params['format'] = 'BGR888'
-                case 'imx219':
-                    camera_params['sensor_mode'] = '1640:1232'
-                    camera_params['format'] = 'BGR888'
+                # Select the sensor mode based on the camera model
+                # RPi Cameras need specific sensor modes to avoid cropping
+                match camera_model:
+                    case 'imx708':
+                        camera_params['sensor_mode'] = '2304:1296'
+                        camera_params['format'] = 'BGR888'
+                    case 'imx219':
+                        camera_params['sensor_mode'] = '1640:1232'
+                        camera_params['format'] = 'BGR888'
+
+        except ImportError as e:
+            print("libcamera is not available, using imx219 camera settings.")
+            camera_params['sensor_mode'] = '1640:1232'
+            camera_params['format'] = 'BGR888'
 
         camera_node = Node(
             package='camera_ros',
