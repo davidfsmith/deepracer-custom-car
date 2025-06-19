@@ -75,13 +75,12 @@ def launch_setup(context, *args, **kwargs):
 
                 # Select the sensor mode based on the camera model
                 # RPi Cameras need specific sensor modes to avoid cropping
-                match camera_model:
-                    case 'imx708':
-                        camera_params['sensor_mode'] = '2304:1296'
-                        camera_params['format'] = 'BGR888'
-                    case 'imx219':
-                        camera_params['sensor_mode'] = '1640:1232'
-                        camera_params['format'] = 'BGR888'
+                if camera_model == 'imx708':
+                    camera_params['sensor_mode'] = '2304:1296'
+                    camera_params['format'] = 'BGR888'
+                elif camera_model == 'imx219':
+                    camera_params['sensor_mode'] = '1640:1232'
+                    camera_params['format'] = 'BGR888'
 
         except ImportError as e:
             print("libcamera is not available, using imx219 camera settings.")
