@@ -24,7 +24,7 @@
 #include "servo_pkg/utility.hpp"
 
 #include "deepracer_interfaces_pkg/msg/servo_ctrl_msg.hpp"
-#include "deepracer_interfaces_pkg/msg/latency_measure.hpp"
+#include "deepracer_interfaces_pkg/msg/latency_measure_msg.hpp"
 #include "deepracer_interfaces_pkg/srv/get_calibration_srv.hpp"
 #include "deepracer_interfaces_pkg/srv/set_calibration_srv.hpp"
 #include "deepracer_interfaces_pkg/srv/servo_gpio_srv.hpp"
@@ -51,12 +51,13 @@ namespace PWM {
         // Default for DeepRacer (DR)
         #define GPIO_CHANNEL 436
     #endif
+    #define LATENCY_MEASURE_FREQ 5
 
     class ServoMgr
         {
         public:
             ServoMgr(rclcpp::Logger logger_, std::shared_ptr<rclcpp::Clock> clock, 
-                     std::shared_ptr<rclcpp::Publisher<deepracer_interfaces_pkg::msg::LatencyMeasure, std::allocator<void>>> latencyPub);
+                     std::shared_ptr<rclcpp::Publisher<deepracer_interfaces_pkg::msg::LatencyMeasureMsg, std::allocator<void>>> latencyPub);
             ~ServoMgr();
             void servoSubscriber(const deepracer_interfaces_pkg::msg::ServoCtrlMsg::SharedPtr servoMsg);
             void rawPWMSubscriber(const deepracer_interfaces_pkg::msg::ServoCtrlMsg::SharedPtr servoMsg);
@@ -106,7 +107,9 @@ namespace PWM {
             /// ROS Clock object to get the current time.
             std::shared_ptr<rclcpp::Clock> clock_;
             /// ROS Publisher for latency measure
-            std::shared_ptr<rclcpp::Publisher<deepracer_interfaces_pkg::msg::LatencyMeasure, std::allocator<void>>> latencyPub_;
+            std::shared_ptr<rclcpp::Publisher<deepracer_interfaces_pkg::msg::LatencyMeasureMsg, std::allocator<void>>> latencyPub_;
+            /// Message count for latency measurement
+            int latency_msg_count_ = 0;
     };
 }
 #endif
