@@ -25,7 +25,7 @@
         "vscode": {
             "settings": {
                 "terminal.integrated.profiles.linux": {
-                    "bash (ROS)": {
+                    "bash": {
                         "path": "/bin/bash",
                         "args": [
                             "--init-file",
@@ -33,7 +33,7 @@
                         ]
                     }
                 },
-                "terminal.integrated.defaultProfile.linux": "bash (ROS)",
+                "terminal.integrated.defaultProfile.linux": "bash",
                 "cmake.configureOnOpen": false,
                 "python.autoComplete.extraPaths": [
                     "/opt/ros/humble/lib/python3.10/site-packages",
