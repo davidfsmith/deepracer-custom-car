@@ -16,6 +16,10 @@
 #   limitations under the License.                                              #
 #################################################################################
 
+from enum import Enum, auto
+import os
+
+
 GET_DEVICE_INFO_SERVICE_NAME = "get_device_info"
 
 GET_DEVICE_STATUS_SERVICE_NAME = "get_device_status"
@@ -43,4 +47,26 @@ DISK_AMOUNT_CMD = "df / -h | awk '{print $2 \"B\"}' | tail -1"
 RAM_AMOUNT_CMD = "free -m | grep 'Mem' | awk '{print $2}'"
 
 # Latency measurement
-MAX_LATENCY_HISTORY = 150
+MAX_LATENCY_HISTORY = 50
+LATENCY_SAMPLE_RATE = 5
+DEVICE_STATUS_TIMING = 2.5  # seconds
+
+# System type
+class SystemType(Enum):
+    DR = auto()
+    RPI4 = auto()
+    RPI5 = auto()
+
+
+def get_system_type():
+    """Get if the system is a Raspberry Pi or not.
+    """
+    if os.path.exists("/sys/class/dmi/id/chassis_serial"):
+        return SystemType.DR
+    elif os.path.exists("/proc/device-tree/model") and "Raspberry Pi 4" in open("/proc/device-tree/model").read():
+        return SystemType.RPI4
+    elif os.path.exists("/proc/device-tree/model") and "Raspberry Pi 5" in open("/proc/device-tree/model").read():
+        return SystemType.RPI5
+
+
+SYSTEM_TYPE = get_system_type()

@@ -14,7 +14,10 @@
 #   limitations under the License.                                              #
 #################################################################################
 
+from calendar import c
 import math
+
+from numpy import e
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
@@ -30,6 +33,7 @@ def launch_setup(context, *args, **kwargs):
     ld = []
 
     camera_mode = LaunchConfiguration('camera_mode').perform(context)
+    camera_index = int(LaunchConfiguration('camera_index').perform(context))
     fps = int(LaunchConfiguration('camera_fps').perform(context))
     resize_images = str2bool(LaunchConfiguration('camera_resize').perform(context))
     resolution = resize_images and [160, 120] or [640, 480]
@@ -46,17 +50,48 @@ def launch_setup(context, *args, **kwargs):
             ]
         )
     else:
+        # Camera configuration
+        camera_params = {'width': resolution[0],
+                         'height': resolution[1],
+                         'FrameDurationLimits': [math.floor(1e6 / fps), math.ceil(1e6 / fps)],
+                         'timestamp_source': 'node'}
+
+        # Camera detection
+        try:
+            from libcamera import CameraManager
+            camera_manager = CameraManager.singleton()
+
+            camera_model = None
+            
+            # If camera_index is specified, use it to select the camera
+            if camera_index >= 0 and camera_index < len(camera_manager.cameras):
+                camera = camera_manager.cameras[camera_index]
+                for prop_id, value in camera.properties.items():
+                    if 'Model' in str(prop_id):
+                        camera_model = value
+
+                camera_params['camera'] = camera_index
+                print(f"Camera {camera_index}: {camera_model} - {camera.id}")
+
+                # Select the sensor mode based on the camera model
+                # RPi Cameras need specific sensor modes to avoid cropping
+                if camera_model == 'imx708':
+                    camera_params['sensor_mode'] = '2304:1296'
+                    camera_params['format'] = 'BGR888'
+                elif camera_model == 'imx219':
+                    camera_params['sensor_mode'] = '1640:1232'
+                    camera_params['format'] = 'BGR888'
+
+        except ImportError as e:
+            print("libcamera is not available, using imx219 camera settings.")
+            camera_params['sensor_mode'] = '1640:1232'
+            camera_params['format'] = 'BGR888'
+
         camera_node = Node(
             package='camera_ros',
             namespace='camera_pkg',
             executable='camera_node',
-            parameters=[
-                {'format': 'BGR888',
-                 'width': resolution[0],
-                 'height': resolution[1],
-                 'sensor_mode': '1640:1232',
-                 'FrameDurationLimits': [math.floor(1e6 / fps), math.ceil(1e6 / fps)]}
-            ],
+            parameters=[camera_params],
             remappings=[
                 # Topic remappings
                 ('/camera_pkg/camera/camera_info', '/camera_pkg/camera_info'),
@@ -82,7 +117,7 @@ def launch_setup(context, *args, **kwargs):
     deepracer_navigation_node = Node(
         package='deepracer_navigation_pkg',
         namespace='deepracer_navigation_pkg',
-        executable='deepracer_navigation_node',
+        executable='deepracer_navigation_node_cpp',
         name='deepracer_navigation_node'
     )
     software_update_node = Node(
@@ -302,6 +337,10 @@ def generate_launch_description():
                 name="camera_mode",
                 default_value="legacy",
                 description="Legacy or modern camera integration"),
+            DeclareLaunchArgument(
+                name="camera_index",
+                default_value="0",
+                description="Index of the camera to use, applicable to modern camera_mode only"),                
             DeclareLaunchArgument(
                 name="rplidar",
                 default_value="True",
