@@ -35,10 +35,13 @@ def get_system_type():
     """
     if os.path.exists("/sys/class/dmi/id/chassis_serial"):
         return SystemType.DR
-    elif os.path.exists("/proc/device-tree/model") and "Raspberry Pi 4" in open("/proc/device-tree/model").read():
-        return SystemType.RPI4
-    elif os.path.exists("/proc/device-tree/model") and "Raspberry Pi 5" in open("/proc/device-tree/model").read():
-        return SystemType.RPI5
+    elif os.path.exists("/proc/device-tree/model"):
+        with open("/proc/device-tree/model") as f:
+            model = f.read()
+        if any(x in model for x in ["Raspberry Pi 4", "Raspberry Pi Compute Module 4"]):
+            return SystemType.RPI4
+        elif any(x in model for x in ["Raspberry Pi 5", "Raspberry Pi Compute Module 5"]):
+            return SystemType.RPI5
 
 SYSTEM_TYPE = get_system_type()
 
